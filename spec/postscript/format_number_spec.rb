@@ -1,0 +1,24 @@
+# frozen_string_literal: true
+
+require "postscript"
+
+RSpec.describe Postscript::FormatNumber do
+  it "formats integers without decimals" do
+    expect(Postscript::FormatNumber.call(10)).to eq("10")
+  end
+
+  it "formats floats to 4 decimals with trailing zeros stripped" do
+    expect(Postscript::FormatNumber.call(3.14)).to eq("3.14")
+    expect(Postscript::FormatNumber.call(3.14159265)).to eq("3.1416")
+    expect(Postscript::FormatNumber.call(2.5)).to eq("2.5")
+  end
+
+  it "normalizes negative zero" do
+    expect(Postscript::FormatNumber.call(-0.0)).to eq("0")
+  end
+
+  it "raises on non-finite numbers" do
+    expect { Postscript::FormatNumber.call(Float::NAN) }.to raise_error(ArgumentError)
+    expect { Postscript::FormatNumber.call(Float::INFINITY) }.to raise_error(ArgumentError)
+  end
+end

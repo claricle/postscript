@@ -1,0 +1,25 @@
+= Vectory test fixtures
+
+== Acknowledgments
+
+These test fixtures are from the Vectory gem, created by Ribose.
+
+== Purpose
+
+These test fixtures are from the Vectory gem.
+
+We use these PS/EPS files and their expected SVG outputs to validate the
+correctness of our implementation.
+
+== Test files
+
+The following test files are included:
+
+* `img.eps` - An EPS file containing vector graphics elements to test various
+PostScript features. The expected SVG output file is `ref.svg`.
+
+== License
+
+The test fixtures retain their original license from the vectory project. See
+the https://github.com/metanorma/vectory[vectory] repository for the full license
+text.

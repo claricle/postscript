@@ -1,0 +1,37 @@
+= PS2SVG test fixtures
+
+== Acknowledgments
+
+Thank you to Emmett Lalish for open-sourcing the ps2svg project and
+providing these valuable test fixtures!
+
+== Purpose
+
+These test fixtures are from the https://github.com/elalish/ps2svg[ps2svg]
+project open sourced under the MIT License.
+
+We use these PostScript files and their expected SVG outputs to validate the
+correctness of our implementation.
+
+The test suite includes various PostScript files covering different features and
+use cases, helping ensure our implementation produces accurate SVG output.
+
+
+== Test files
+
+The following test files are included:
+
+* `colors.ps` - Tests RGB and CMYK color conversion. The expected SVG output file is
+  `colors_expected.svg`.
+* `example_full.ps` - Comprehensive PostScript feature test. The expected SVG output file is
+  `example_full_expected.svg`.
+* `file.ps` - Basic file conversion test. The expected SVG output file is
+  `file_expected.svg`.
+* `prog.ps` - PostScript program execution test. The expected SVG output file is `prog_expected.svg`.
+* `img.ps` - Image-related PostScript operations. The expected SVG output file is `ref.svg`.
+
+== License
+
+The test fixtures retain their original MIT License from the ps2svg project. See
+the https://github.com/elalish/ps2svg[ps2svg] repository for the full license
+text.

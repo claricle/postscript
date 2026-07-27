@@ -1,0 +1,72 @@
+= Postscript
+
+Pure-Ruby PostScript (PS) / EPS parser, typed domain model, and
+serializer. The lower layer of the
+https://github.com/claricle/postsvg[postsvg] converter. Independently
+reusable for any tool that needs to read, write, or transform
+PostScript source.
+
+== Installation
+
+[source,sh]
+----
+gem install postscript
+----
+
+== Usage
+
+[source,ruby]
+----
+require "postscript"
+
+# Parse PS source into a typed AST
+program = Postscript::Source.parse(<<~PS)
+  %!PS-Adobe-3.0 EPSF-3.0
+  %%BoundingBox: 0 0 100 100
+  newpath
+  10 10 moveto
+  90 10 lineto
+  90 90 lineto
+  10 90 lineto
+  closepath
+  fill
+  showpage
+PS
+
+# Walk the AST
+program.body.each do |node|
+  puts node.class
+end
+
+# Re-serialize back to PS source
+ps_text = Postscript::Serializer.call(program)
+puts ps_text
+----
+
+== Architecture
+
+Three layers, each with a single responsibility:
+
+[cols="1,4", options="header"]
+|===
+| Layer | Owns
+| `Postscript::Source` | PS source → tokens → `Model::Program`. Lexer is comment-aware.
+| `Postscript::Model` | Typed PS records: `Program`, `Literals::*`, `Operators::*` (one class per PS operator).
+| `Postscript::Serializer` | `Model::Program` → PS source text.
+|===
+
+Adding a new PS operator = writing one subclass + one `visit_*`
+method. No switch edits (OCP).
+
+== Value types
+
+This gem also hosts three general-purpose value types that
+postsvg depends on:
+
+* `Postscript::Matrix` — 2D affine transform.
+* `Postscript::Color` — RGB / Gray / CMYK immutable value.
+* `Postscript::FormatNumber` — float → PS-safe text.
+
+== License
+
+BSD-2-Clause. See `LICENSE`.
