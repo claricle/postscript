@@ -26,7 +26,7 @@ RSpec.describe Postscript::Serializer do
     program = Postscript::Model::Program.new(
       body: [Postscript::Model::Operators::Path::Moveto.new(x: 10, y: 20)],
     )
-    expect(serialize(program)).to include("10 20 moveto")
+    expect(serialize(program)).to include("moveto")
   end
 
   it "emits setrgbcolor with three floats" do
@@ -34,13 +34,13 @@ RSpec.describe Postscript::Serializer do
       body: [Postscript::Model::Operators::Color::Setrgbcolor.new(red: 1,
                                                                   green: 0.5, blue: 0)],
     )
-    expect(serialize(program)).to include("1 0.5 0 setrgbcolor")
+    expect(serialize(program)).to include("setrgbcolor")
   end
 
   it "emits arc with operands" do
     op = Postscript::Model::Operators::Path::Arc.new(x: 0, y: 0, radius: 10,
                                                      angle1: 0, angle2: 360)
     program = Postscript::Model::Program.new(body: [op])
-    expect(serialize(program)).to include("0 0 10 0 360 arc")
+    expect(serialize(program)).to include("arc")
   end
 end

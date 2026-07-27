@@ -16,7 +16,7 @@ module Postscript
         end
 
         class Eq < Operator
-          register_as "eq"
+          register_as "eq", consumes: 2, produces: 1
           def self.from_operands(stack)
             b = stack.pop
             a = stack.pop
@@ -32,7 +32,7 @@ module Postscript
         end
 
         class Ne < Operator
-          register_as "ne"
+          register_as "ne", consumes: 2, produces: 1
           def self.from_operands(stack)
             b = stack.pop
             a = stack.pop
@@ -48,7 +48,7 @@ module Postscript
         end
 
         class Gt < Operator
-          register_as "gt"
+          register_as "gt", consumes: 2, produces: 1
           def self.from_operands(stack)
             b = stack.pop_number
             a = stack.pop_number
@@ -64,7 +64,7 @@ module Postscript
         end
 
         class Ge < Operator
-          register_as "ge"
+          register_as "ge", consumes: 2, produces: 1
           def self.from_operands(stack)
             b = stack.pop_number
             a = stack.pop_number
@@ -80,7 +80,7 @@ module Postscript
         end
 
         class Lt < Operator
-          register_as "lt"
+          register_as "lt", consumes: 2, produces: 1
           def self.from_operands(stack)
             b = stack.pop_number
             a = stack.pop_number
@@ -96,7 +96,7 @@ module Postscript
         end
 
         class Le < Operator
-          register_as "le"
+          register_as "le", consumes: 2, produces: 1
           def self.from_operands(stack)
             b = stack.pop_number
             a = stack.pop_number
@@ -112,7 +112,7 @@ module Postscript
         end
 
         class And < Operator
-          register_as "and"
+          register_as "and", consumes: 2, produces: 1
           def self.from_operands(stack)
             b = stack.pop
             a = stack.pop
@@ -128,7 +128,7 @@ module Postscript
         end
 
         class Or < Operator
-          register_as "or"
+          register_as "or", consumes: 2, produces: 1
           def self.from_operands(stack)
             b = stack.pop
             a = stack.pop
@@ -144,7 +144,7 @@ module Postscript
         end
 
         class Xor < Operator
-          register_as "xor"
+          register_as "xor", consumes: 2, produces: 1
           def self.from_operands(stack)
             b = stack.pop
             a = stack.pop
@@ -160,7 +160,7 @@ module Postscript
         end
 
         class Not < Operator
-          register_as "not"
+          register_as "not", consumes: 1, produces: 1
           attr_reader :operand
 
           def initialize(operand:)
@@ -174,7 +174,7 @@ module Postscript
         end
 
         class Bitshift < Operator
-          register_as "bitshift"
+          register_as "bitshift", consumes: 2, produces: 1
           def self.from_operands(stack)
             shift = stack.pop_number.to_i
             value = stack.pop_number.to_i
