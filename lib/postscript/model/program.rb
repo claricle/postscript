@@ -51,7 +51,7 @@ module Postscript
         end
 
         def with(**overrides)
-          Header.new(**to_h.merge(overrides))
+          Header.new(**to_h, **overrides)
         end
 
         def to_h
@@ -59,7 +59,7 @@ module Postscript
             bounding_box: bounding_box, hires_bounding_box: hires_bounding_box,
             title: title, creator: creator, creation_date: creation_date,
             pages: pages, page_count: page_count, epsf: epsf,
-            language_level: language_level, custom: custom,
+            language_level: language_level, custom: custom
           }
         end
       end

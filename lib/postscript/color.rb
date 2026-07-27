@@ -10,7 +10,7 @@ module Postscript
     attr_reader :red, :green, :blue
 
     def self.clamp_byte(value)
-      Integer === value ? value.clamp(0, 255) : value.to_i.clamp(0, 255)
+      value.is_a?(Integer) ? value.clamp(0, 255) : value.to_i.clamp(0, 255)
     end
 
     def self.scale_unit_to_byte(value)
@@ -58,9 +58,11 @@ module Postscript
         hex = ::Regexp.last_match(1)
         new((hex[0] * 2).to_i(16), (hex[1] * 2).to_i(16), (hex[2] * 2).to_i(16))
       when /\argb\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)/
-        new(::Regexp.last_match(1).to_i, ::Regexp.last_match(2).to_i, ::Regexp.last_match(3).to_i)
+        new(::Regexp.last_match(1).to_i, ::Regexp.last_match(2).to_i,
+            ::Regexp.last_match(3).to_i)
       when /\argb\(\s*(\d+)\s+(\d+)\s+(\d+)/
-        new(::Regexp.last_match(1).to_i, ::Regexp.last_match(2).to_i, ::Regexp.last_match(3).to_i)
+        new(::Regexp.last_match(1).to_i, ::Regexp.last_match(2).to_i,
+            ::Regexp.last_match(3).to_i)
       when "none", "transparent"
         nil
       else
@@ -123,7 +125,7 @@ module Postscript
       "teal" => [0, 128, 128], "lime" => [0, 255, 0],
       "aqua" => [0, 255, 255], "fuchsia" => [255, 0, 255],
       "orange" => [255, 165, 0], "pink" => [255, 192, 203],
-      "brown" => [165, 42, 42],
+      "brown" => [165, 42, 42]
     }.freeze
 
     BLACK = Color.new(0, 0, 0).freeze

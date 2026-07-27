@@ -19,7 +19,10 @@ module Postscript
     attr_reader :program, :eps, :creator
 
     def initialize(program, eps:, creator:)
-      raise ArgumentError, "program must be a Model::Program" unless program.is_a?(Model::Program)
+      unless program.is_a?(Model::Program)
+        raise ArgumentError,
+              "program must be a Model::Program"
+      end
 
       @program = program
       @eps = eps
@@ -45,11 +48,11 @@ module Postscript
       buffer << "%%Creator: #{creator}\n"
       bbox = program.header.bounding_box
       if bbox && !bbox.empty?
-        buffer << "%%BoundingBox: " << bbox.map { |v| FormatNumber.call(v) }.join(" ") << "\n"
+        buffer << "%%BoundingBox: " << bbox.map { |v|
+          FormatNumber.call(v)
+        }.join(" ") << "\n"
       end
-      if program.header.title
-        buffer << "%%Title: #{program.header.title}\n"
-      end
+      buffer << "%%Title: #{program.header.title}\n" if program.header.title
       buffer << "%%LanguageLevel: #{DEFAULT_LANGUAGE_LEVEL}\n"
       buffer << "%%EndComments\n"
     end
@@ -73,7 +76,10 @@ module Postscript
         buffer << "<" << statement.value << ">\n"
       when Model::Literals::ArrayLiteral
         buffer << "[ "
-        statement.elements.each { |e| emit_inline(e, buffer); buffer << " " }
+        statement.elements.each do |e|
+          emit_inline(e, buffer)
+          buffer << " "
+        end
         buffer << "]\n"
       when Model::Literals::Procedure
         buffer << "{\n"
@@ -140,26 +146,26 @@ module Postscript
 
     def emit_curveto(op, buf)
       buf << "#{FormatNumber.call(op.x1)} #{FormatNumber.call(op.y1)} " \
-            "#{FormatNumber.call(op.x2)} #{FormatNumber.call(op.y2)} " \
-            "#{FormatNumber.call(op.x3)} #{FormatNumber.call(op.y3)} curveto\n"
+             "#{FormatNumber.call(op.x2)} #{FormatNumber.call(op.y2)} " \
+             "#{FormatNumber.call(op.x3)} #{FormatNumber.call(op.y3)} curveto\n"
     end
 
     def emit_rcurveto(op, buf)
       buf << "#{FormatNumber.call(op.dx1)} #{FormatNumber.call(op.dy1)} " \
-            "#{FormatNumber.call(op.dx2)} #{FormatNumber.call(op.dy2)} " \
-            "#{FormatNumber.call(op.dx3)} #{FormatNumber.call(op.dy3)} rcurveto\n"
+             "#{FormatNumber.call(op.dx2)} #{FormatNumber.call(op.dy2)} " \
+             "#{FormatNumber.call(op.dx3)} #{FormatNumber.call(op.dy3)} rcurveto\n"
     end
 
     def emit_arc(op, buf)
       buf << "#{FormatNumber.call(op.x)} #{FormatNumber.call(op.y)} " \
-            "#{FormatNumber.call(op.radius)} " \
-            "#{FormatNumber.call(op.angle1)} #{FormatNumber.call(op.angle2)} arc\n"
+             "#{FormatNumber.call(op.radius)} " \
+             "#{FormatNumber.call(op.angle1)} #{FormatNumber.call(op.angle2)} arc\n"
     end
 
     def emit_arcn(op, buf)
       buf << "#{FormatNumber.call(op.x)} #{FormatNumber.call(op.y)} " \
-            "#{FormatNumber.call(op.radius)} " \
-            "#{FormatNumber.call(op.angle1)} #{FormatNumber.call(op.angle2)} arcn\n"
+             "#{FormatNumber.call(op.radius)} " \
+             "#{FormatNumber.call(op.angle1)} #{FormatNumber.call(op.angle2)} arcn\n"
     end
 
     def emit_closepath(_op, buf)
@@ -188,12 +194,12 @@ module Postscript
 
     def emit_setcmykcolor(op, buf)
       buf << "#{FormatNumber.call(op.cyan)} #{FormatNumber.call(op.magenta)} " \
-            "#{FormatNumber.call(op.yellow)} #{FormatNumber.call(op.key)} setcmykcolor\n"
+             "#{FormatNumber.call(op.yellow)} #{FormatNumber.call(op.key)} setcmykcolor\n"
     end
 
     def emit_sethsbcolor(op, buf)
       buf << "#{FormatNumber.call(op.hue)} #{FormatNumber.call(op.saturation)} " \
-            "#{FormatNumber.call(op.brightness)} sethsbcolor\n"
+             "#{FormatNumber.call(op.brightness)} sethsbcolor\n"
     end
 
     # Graphics state
@@ -220,7 +226,9 @@ module Postscript
     def emit_setdash(op, buf)
       pattern_str =
         case op.pattern
-        when Array then "[#{op.pattern.map { |v| FormatNumber.call(v.to_f) }.join(' ')}]"
+        when Array then "[#{op.pattern.map do |v|
+          FormatNumber.call(v.to_f)
+        end.join(' ')}]"
         when Numeric then FormatNumber.call(op.pattern.to_f)
         else "[]"
         end
@@ -247,10 +255,10 @@ module Postscript
     end
 
     def escape_string(text)
-      escaped = text.to_s.gsub(/[\(\)\\]/) { |c| "\\#{c}" }
-                          .gsub("\n", "\\n")
-                          .gsub("\r", "\\r")
-                          .gsub("\t", "\\t")
+      escaped = text.to_s.gsub(/[()\\]/) { |c| "\\#{c}" }
+        .gsub("\n", '\\n')
+        .gsub("\r", '\\r')
+        .gsub("\t", '\\t')
       "(#{escaped})"
     end
 

@@ -33,7 +33,10 @@ module Postscript
       private
 
       def consume_until(end_index, terminators: [], depth: 0)
-        raise RecursionLimitError, "procedure depth exceeded #{MAX_PROC_DEPTH}" if depth > MAX_PROC_DEPTH
+        if depth > MAX_PROC_DEPTH
+          raise RecursionLimitError,
+                "procedure depth exceeded #{MAX_PROC_DEPTH}"
+        end
 
         i = 0
         collected = []
@@ -65,7 +68,8 @@ module Postscript
           append_statement(node, collected)
           1
         when :name
-          node = Model::Literals::Name.new(token.value, literal: token.literal || false)
+          node = Model::Literals::Name.new(token.value,
+                                           literal: token.literal || false)
           @stack.push(node)
           append_statement(node, collected)
           1
@@ -101,11 +105,12 @@ module Postscript
       def build_number(token)
         raw = token.value
         value =
-          if raw =~ /\A[-+]?\d+\z/
+          case raw
+          when /\A[-+]?\d+\z/
             raw.to_i
-          elsif raw =~ /\A[-+]?\d+\.\d+\z/ || raw =~ /\A[-+]?(\.\d+|\d+\.)\z/
+          when /\A[-+]?\d+\.\d+\z/, /\A[-+]?(\.\d+|\d+\.)\z/
             raw.to_f
-          elsif raw =~ /\A[-+]?(\d+\.?\d*|\.\d+)[eE][-+]?\d+\z/
+          when /\A[-+]?(\d+\.?\d*|\.\d+)[eE][-+]?\d+\z/
             raw.to_f
           else
             raw.to_f
@@ -129,9 +134,12 @@ module Postscript
 
       def consume_array(after:, collected:)
         start_index = find_index(after)
-        body_tokens, end_index = match_until(start_index + 1, :array_close, :array_open)
+        body_tokens, end_index = match_until(start_index + 1, :array_close,
+                                             :array_open)
         body_nodes = sub_build(body_tokens)
-        array = Model::Literals::ArrayLiteral.new(body_nodes.select { |n| literal?(n) })
+        array = Model::Literals::ArrayLiteral.new(body_nodes.select do |n|
+          literal?(n)
+        end)
         @stack.push(array)
         append_statement(array, collected)
         end_index - start_index + 1
@@ -139,7 +147,8 @@ module Postscript
 
       def consume_dict(after:, collected:)
         start_index = find_index(after)
-        body_tokens, end_index = match_until(start_index + 1, :dict_close, :dict_open)
+        body_tokens, end_index = match_until(start_index + 1, :dict_close,
+                                             :dict_open)
         entries = {}
         pending_key = nil
         sub_nodes = sub_build(body_tokens)
@@ -221,13 +230,11 @@ module Postscript
         keyword = token.value
 
         # Resolve user-defined names to InvokeProcedure.
-        if (proc_value = lookup_user_definition(keyword))
-          if proc_value.is_a?(Model::Literals::Procedure)
-            inv = Model::InvokeProcedure.new(name: keyword, procedure: proc_value)
-            @body << inv
-            collected << inv
-            return 1
-          end
+        if (proc_value = lookup_user_definition(keyword)) && proc_value.is_a?(Model::Literals::Procedure)
+          inv = Model::InvokeProcedure.new(name: keyword, procedure: proc_value)
+          @body << inv
+          collected << inv
+          return 1
         end
 
         operator_class = Model::Operators[keyword]
@@ -262,7 +269,8 @@ module Postscript
       def apply_side_effects(operator)
         case operator
         when Model::Operators::Dictionary::Def
-          @dict_stack.last[operator.key.to_s.sub(/\A\//, "")] = operator.value
+          @dict_stack.last[operator.key.to_s.delete_prefix("/")] =
+            operator.value
         end
       end
 
@@ -278,14 +286,14 @@ module Postscript
         case text
         when /\ABoundingBox:\s*(-?[\d.eE+-]+)\s+(-?[\d.eE+-]+)\s+(-?[\d.eE+-]+)\s+(-?[\d.eE+-]+)\z/
           @header = @header.with(bounding_box: [
-            ::Regexp.last_match(1).to_f, ::Regexp.last_match(2).to_f,
-            ::Regexp.last_match(3).to_f, ::Regexp.last_match(4).to_f,
-          ])
+                                   ::Regexp.last_match(1).to_f, ::Regexp.last_match(2).to_f,
+                                   ::Regexp.last_match(3).to_f, ::Regexp.last_match(4).to_f
+                                 ])
         when /\AHiResBoundingBox:\s*(-?[\d.eE+-]+)\s+(-?[\d.eE+-]+)\s+(-?[\d.eE+-]+)\s+(-?[\d.eE+-]+)\z/
           @header = @header.with(hires_bounding_box: [
-            ::Regexp.last_match(1).to_f, ::Regexp.last_match(2).to_f,
-            ::Regexp.last_match(3).to_f, ::Regexp.last_match(4).to_f,
-          ])
+                                   ::Regexp.last_match(1).to_f, ::Regexp.last_match(2).to_f,
+                                   ::Regexp.last_match(3).to_f, ::Regexp.last_match(4).to_f
+                                 ])
         when /\ATitle:\s*(.+)\z/
           @header = @header.with(title: ::Regexp.last_match(1))
         when /\ACreator:\s*(.+)\z/

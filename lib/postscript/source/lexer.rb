@@ -121,18 +121,15 @@ module Postscript
         start_pos = @position
         start_line = @line
         start_col = @column
-        until eos? || @source.getbyte(@position) == 10
-          advance
-        end
+        advance until eos? || @source.getbyte(@position) == 10
         text = @source.byteslice(start_pos, @position - start_pos)
-        @tokens << Model::Token.new(:dsc, text.chomp, line: start_line, column: start_col)
+        @tokens << Model::Token.new(:dsc, text.chomp, line: start_line,
+                                                      column: start_col)
         @state = :top
       end
 
       def scan_comment_body
-        until eos? || @source.getbyte(@position) == 10
-          advance
-        end
+        advance until eos? || @source.getbyte(@position) == 10
         @state = :top
       end
 
@@ -148,16 +145,14 @@ module Postscript
       def scan_string_body
         until eos?
           byte = @source.getbyte(@position)
+          advance
           case byte
           when 92 # backslash
-            advance
             handle_escape
           when 40 # (
-            advance
             @string_depth += 1
             @string_start[:bytes] << "("
           when 41 # )
-            advance
             @string_depth -= 1
             if @string_depth.zero?
               emit_string
@@ -165,12 +160,12 @@ module Postscript
             end
             @string_start[:bytes] << ")"
           else
-            advance
             @string_start[:bytes] << byte.chr
           end
         end
         raise LexError.new("unterminated string literal",
-                           source_position: [@string_start[:line], @string_start[:column]])
+                           source_position: [@string_start[:line],
+                                             @string_start[:column]])
       end
 
       def handle_escape
@@ -193,17 +188,17 @@ module Postscript
           else
             char
           end
-        if replacement.is_a?(String)
-          advance
-          @string_start[:bytes] << replacement
-        end
+        return unless replacement.is_a?(String)
+
+        advance
+        @string_start[:bytes] << replacement
       end
 
       def consume_octal_escape
         digits = +""
         3.times do
           byte = peek
-          break unless byte && (byte >= 48 && byte <= 55) # 0..7
+          break unless byte && byte >= 48 && byte <= 55 # 0..7
 
           digits << byte.chr
           advance
@@ -244,7 +239,8 @@ module Postscript
           end
         end
         raise LexError.new("unterminated hex string literal",
-                           source_position: [@hex_start[:line], @hex_start[:column]])
+                           source_position: [@hex_start[:line],
+                                             @hex_start[:column]])
       end
 
       def emit_hexstring
@@ -266,7 +262,7 @@ module Postscript
         end
       end
 
-      def start_name_with_slash(prefix)
+      def start_name_with_slash(_prefix)
         start_line = @line
         start_col = @column
         advance
@@ -278,7 +274,8 @@ module Postscript
           bytes << byte.chr
           advance
         end
-        @tokens << Model::Token.new(:name, bytes, line: start_line, column: start_col, literal: true)
+        @tokens << Model::Token.new(:name, bytes, line: start_line,
+                                                  column: start_col, literal: true)
       end
 
       def delimiter_byte?(byte)
@@ -312,7 +309,7 @@ module Postscript
         @tokens << Model::Token.new(type, bytes, line: line, column: col)
       end
 
-      NUMBER_RE = /\A[-+]?(?:\d+\.\d*|\.\d+|\d+)(?:[eE][-+]?\d+)?\z/.freeze
+      NUMBER_RE = /\A[-+]?(?:\d+\.\d*|\.\d+|\d+)(?:[eE][-+]?\d+)?\z/
 
       def emit(type, value)
         @tokens << Model::Token.new(type, value, line: @line, column: @column)

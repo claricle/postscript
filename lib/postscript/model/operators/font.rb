@@ -14,10 +14,12 @@ module Postscript
         class Findfont < Operator
           register_as "findfont", consumes: 1, produces: 1
           attr_reader :name
+
           def initialize(name:)
             @name = name
             freeze
           end
+
           def self.from_operands(stack)
             new(name: stack.pop)
           end
@@ -27,11 +29,13 @@ module Postscript
         class Scalefont < Operator
           register_as "scalefont", consumes: 2, produces: 1
           attr_reader :font, :size
+
           def initialize(font:, size:)
             @font = font
             @size = size
             freeze
           end
+
           def self.from_operands(stack)
             size = stack.pop_number
             font = stack.pop
@@ -43,10 +47,12 @@ module Postscript
         class Setfont < Operator
           register_as "setfont", consumes: 1, produces: 0
           attr_reader :font
+
           def initialize(font:)
             @font = font
             freeze
           end
+
           def self.from_operands(stack)
             new(font: stack.pop)
           end
@@ -56,10 +62,12 @@ module Postscript
         class Show < Operator
           register_as "show", consumes: 1, produces: 0
           attr_reader :text
+
           def initialize(text:)
             @text = text
             freeze
           end
+
           def self.from_operands(stack)
             new(text: stack.pop)
           end
@@ -70,12 +78,14 @@ module Postscript
         class Xyshow < Operator
           register_as "xyshow"
           attr_reader :text, :dx, :dy
+
           def initialize(text:, dx:, dy:)
             @text = text
             @dx = dx
             @dy = dy
             freeze
           end
+
           def self.from_operands(stack)
             dy = stack.pop
             dx = stack.pop
@@ -90,10 +100,12 @@ module Postscript
         class Stringwidth < Operator
           register_as "stringwidth"
           attr_reader :text
+
           def initialize(text:)
             @text = text
             freeze
           end
+
           def self.from_operands(stack)
             new(text: stack.pop)
           end
@@ -104,11 +116,13 @@ module Postscript
         class Charpath < Operator
           register_as "charpath"
           attr_reader :text, :stroke
+
           def initialize(text:, stroke:)
             @text = text
             @stroke = stroke
             freeze
           end
+
           def self.from_operands(stack)
             stroke = stack.pop
             text = stack.pop

@@ -35,10 +35,12 @@ module Postscript
         class Index < Operator
           register_as "index", consumes: 1, produces: 1
           attr_reader :index
+
           def initialize(index:)
             @index = index
             freeze
           end
+
           def self.from_operands(stack)
             new(index: stack.pop_number.to_i)
           end
@@ -47,11 +49,13 @@ module Postscript
         class Roll < Operator
           register_as "roll", consumes: 2, produces: 0
           attr_reader :count, :positions
+
           def initialize(count:, positions:)
             @count = count
             @positions = positions
             freeze
           end
+
           def self.from_operands(stack)
             positions = stack.pop_number.to_i
             count = stack.pop_number.to_i
