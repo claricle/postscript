@@ -67,7 +67,7 @@ module Postscript
         end
 
         class Matrix < Operator
-          register_as "matrix"
+          register_as "matrix", consumes: 0, produces: 1
         end
 
         class Currentmatrix < Operator
