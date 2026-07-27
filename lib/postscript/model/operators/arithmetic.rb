@@ -15,6 +15,7 @@ module Postscript
             new(operand_a: a, operand_b: b)
           end
           attr_reader :operand_a, :operand_b
+
           def initialize(operand_a:, operand_b:)
             @operand_a = operand_a
             @operand_b = operand_b
@@ -30,6 +31,7 @@ module Postscript
             new(operand_a: a, operand_b: b)
           end
           attr_reader :operand_a, :operand_b
+
           def initialize(operand_a:, operand_b:)
             @operand_a = operand_a
             @operand_b = operand_b
@@ -45,6 +47,7 @@ module Postscript
             new(operand_a: a, operand_b: b)
           end
           attr_reader :operand_a, :operand_b
+
           def initialize(operand_a:, operand_b:)
             @operand_a = operand_a
             @operand_b = operand_b
@@ -60,6 +63,7 @@ module Postscript
             new(operand_a: a, operand_b: b)
           end
           attr_reader :operand_a, :operand_b
+
           def initialize(operand_a:, operand_b:)
             @operand_a = operand_a
             @operand_b = operand_b
@@ -75,6 +79,7 @@ module Postscript
             new(operand_a: a, operand_b: b)
           end
           attr_reader :operand_a, :operand_b
+
           def initialize(operand_a:, operand_b:)
             @operand_a = operand_a
             @operand_b = operand_b
@@ -90,6 +95,7 @@ module Postscript
             new(operand_a: a, operand_b: b)
           end
           attr_reader :operand_a, :operand_b
+
           def initialize(operand_a:, operand_b:)
             @operand_a = operand_a
             @operand_b = operand_b
@@ -100,10 +106,12 @@ module Postscript
         class Neg < Operator
           register_as "neg", **UNARY_DEFAULT
           attr_reader :operand
+
           def initialize(operand:)
             @operand = operand
             freeze
           end
+
           def self.from_operands(stack)
             new(operand: stack.pop_number)
           end
@@ -112,10 +120,12 @@ module Postscript
         class Abs < Operator
           register_as "abs", **UNARY_DEFAULT
           attr_reader :operand
+
           def initialize(operand:)
             @operand = operand
             freeze
           end
+
           def self.from_operands(stack)
             new(operand: stack.pop_number)
           end
@@ -124,10 +134,12 @@ module Postscript
         class Ceiling < Operator
           register_as "ceiling", **UNARY_DEFAULT
           attr_reader :operand
+
           def initialize(operand:)
             @operand = operand
             freeze
           end
+
           def self.from_operands(stack)
             new(operand: stack.pop_number)
           end
@@ -136,10 +148,12 @@ module Postscript
         class Floor < Operator
           register_as "floor", **UNARY_DEFAULT
           attr_reader :operand
+
           def initialize(operand:)
             @operand = operand
             freeze
           end
+
           def self.from_operands(stack)
             new(operand: stack.pop_number)
           end
@@ -148,10 +162,12 @@ module Postscript
         class Round < Operator
           register_as "round", **UNARY_DEFAULT
           attr_reader :operand
+
           def initialize(operand:)
             @operand = operand
             freeze
           end
+
           def self.from_operands(stack)
             new(operand: stack.pop_number)
           end
@@ -160,10 +176,12 @@ module Postscript
         class Truncate < Operator
           register_as "truncate", **UNARY_DEFAULT
           attr_reader :operand
+
           def initialize(operand:)
             @operand = operand
             freeze
           end
+
           def self.from_operands(stack)
             new(operand: stack.pop_number)
           end
@@ -172,10 +190,12 @@ module Postscript
         class Sqrt < Operator
           register_as "sqrt", **UNARY_DEFAULT
           attr_reader :operand
+
           def initialize(operand:)
             @operand = operand
             freeze
           end
+
           def self.from_operands(stack)
             new(operand: stack.pop_number)
           end
@@ -189,6 +209,7 @@ module Postscript
             new(operand_a: a, operand_b: b)
           end
           attr_reader :operand_a, :operand_b
+
           def initialize(operand_a:, operand_b:)
             @operand_a = operand_a
             @operand_b = operand_b
@@ -199,10 +220,12 @@ module Postscript
         class Cos < Operator
           register_as "cos", **UNARY_DEFAULT
           attr_reader :operand
+
           def initialize(operand:)
             @operand = operand
             freeze
           end
+
           def self.from_operands(stack)
             new(operand: stack.pop_number)
           end
@@ -211,10 +234,12 @@ module Postscript
         class Sin < Operator
           register_as "sin", **UNARY_DEFAULT
           attr_reader :operand
+
           def initialize(operand:)
             @operand = operand
             freeze
           end
+
           def self.from_operands(stack)
             new(operand: stack.pop_number)
           end
@@ -223,10 +248,12 @@ module Postscript
         class Ln < Operator
           register_as "ln", **UNARY_DEFAULT
           attr_reader :operand
+
           def initialize(operand:)
             @operand = operand
             freeze
           end
+
           def self.from_operands(stack)
             new(operand: stack.pop_number)
           end
@@ -235,10 +262,12 @@ module Postscript
         class Log < Operator
           register_as "log", **UNARY_DEFAULT
           attr_reader :operand
+
           def initialize(operand:)
             @operand = operand
             freeze
           end
+
           def self.from_operands(stack)
             new(operand: stack.pop_number)
           end
@@ -252,6 +281,7 @@ module Postscript
             new(operand_a: a, operand_b: b)
           end
           attr_reader :operand_a, :operand_b
+
           def initialize(operand_a:, operand_b:)
             @operand_a = operand_a
             @operand_b = operand_b

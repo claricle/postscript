@@ -31,11 +31,13 @@ module Postscript
         class Def < Operator
           register_as "def", consumes: 2, produces: 0
           attr_reader :key, :value
+
           def initialize(key:, value:)
             @key = key
             @value = value
             freeze
           end
+
           def self.from_operands(stack)
             value = stack.pop
             key = stack.pop
@@ -46,10 +48,12 @@ module Postscript
         class Load < Operator
           register_as "load", consumes: 1, produces: 1
           attr_reader :key
+
           def initialize(key:)
             @key = key
             freeze
           end
+
           def self.from_operands(stack)
             new(key: stack.pop)
           end
@@ -58,11 +62,13 @@ module Postscript
         class Store < Operator
           register_as "store", consumes: 2, produces: 0
           attr_reader :key, :value
+
           def initialize(key:, value:)
             @key = key
             @value = value
             freeze
           end
+
           def self.from_operands(stack)
             value = stack.pop
             key = stack.pop
@@ -78,6 +84,7 @@ module Postscript
             new(key: key, dict: dict)
           end
           attr_reader :key, :dict
+
           def initialize(key:, dict:)
             @key = key
             @dict = dict
@@ -107,6 +114,7 @@ module Postscript
             new(operand: stack.pop)
           end
           attr_reader :operand
+
           def initialize(operand:)
             @operand = operand
             freeze

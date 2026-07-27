@@ -23,6 +23,7 @@ module Postscript
             new(operand_a: a, operand_b: b)
           end
           attr_reader :operand_a, :operand_b
+
           def initialize(operand_a:, operand_b:)
             @operand_a = operand_a
             @operand_b = operand_b
@@ -38,6 +39,7 @@ module Postscript
             new(operand_a: a, operand_b: b)
           end
           attr_reader :operand_a, :operand_b
+
           def initialize(operand_a:, operand_b:)
             @operand_a = operand_a
             @operand_b = operand_b
@@ -53,6 +55,7 @@ module Postscript
             new(operand_a: a, operand_b: b)
           end
           attr_reader :operand_a, :operand_b
+
           def initialize(operand_a:, operand_b:)
             @operand_a = operand_a
             @operand_b = operand_b
@@ -68,6 +71,7 @@ module Postscript
             new(operand_a: a, operand_b: b)
           end
           attr_reader :operand_a, :operand_b
+
           def initialize(operand_a:, operand_b:)
             @operand_a = operand_a
             @operand_b = operand_b
@@ -83,6 +87,7 @@ module Postscript
             new(operand_a: a, operand_b: b)
           end
           attr_reader :operand_a, :operand_b
+
           def initialize(operand_a:, operand_b:)
             @operand_a = operand_a
             @operand_b = operand_b
@@ -98,6 +103,7 @@ module Postscript
             new(operand_a: a, operand_b: b)
           end
           attr_reader :operand_a, :operand_b
+
           def initialize(operand_a:, operand_b:)
             @operand_a = operand_a
             @operand_b = operand_b
@@ -113,6 +119,7 @@ module Postscript
             new(operand_a: a, operand_b: b)
           end
           attr_reader :operand_a, :operand_b
+
           def initialize(operand_a:, operand_b:)
             @operand_a = operand_a
             @operand_b = operand_b
@@ -128,6 +135,7 @@ module Postscript
             new(operand_a: a, operand_b: b)
           end
           attr_reader :operand_a, :operand_b
+
           def initialize(operand_a:, operand_b:)
             @operand_a = operand_a
             @operand_b = operand_b
@@ -143,6 +151,7 @@ module Postscript
             new(operand_a: a, operand_b: b)
           end
           attr_reader :operand_a, :operand_b
+
           def initialize(operand_a:, operand_b:)
             @operand_a = operand_a
             @operand_b = operand_b
@@ -153,10 +162,12 @@ module Postscript
         class Not < Operator
           register_as "not"
           attr_reader :operand
+
           def initialize(operand:)
             @operand = operand
             freeze
           end
+
           def self.from_operands(stack)
             new(operand: stack.pop)
           end
@@ -170,6 +181,7 @@ module Postscript
             new(operand: value, shift: shift)
           end
           attr_reader :operand, :shift
+
           def initialize(operand:, shift:)
             @operand = operand
             @shift = shift

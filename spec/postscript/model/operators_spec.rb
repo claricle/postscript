@@ -3,18 +3,18 @@
 require "postscript"
 
 RSpec.describe Postscript::Model::Operators do
-  before(:all) { Postscript::Model::Operators.load_all! }
+  before(:all) { described_class.load_all! }
 
   describe "registry" do
     it "registers moveto, lineto, stroke, etc." do
       %w[moveto lineto curveto closepath stroke fill setrgbcolor setgray
          gsave grestore translate scale rotate].each do |kw|
-        expect(Postscript::Model::Operators[kw]).not_to be_nil
+        expect(described_class[kw]).not_to be_nil
       end
     end
 
     it "returns nil for unknown keywords" do
-      expect(Postscript::Model::Operators["nonsense_12345"]).to be_nil
+      expect(described_class["nonsense_12345"]).to be_nil
     end
   end
 
@@ -33,8 +33,12 @@ RSpec.describe Postscript::Model::Operators do
     it "pops operands in reverse-source order" do
       stack = Postscript::Source::OperandStack.new
       # x1 y1 x2 y2 x3 y3
-      stack.push(1); stack.push(2); stack.push(3)
-      stack.push(4); stack.push(5); stack.push(6)
+      stack.push(1)
+      stack.push(2)
+      stack.push(3)
+      stack.push(4)
+      stack.push(5)
+      stack.push(6)
       op = described_class.from_operands(stack)
       expect(op.x1).to eq(1)
       expect(op.y1).to eq(2)
@@ -58,15 +62,15 @@ RSpec.describe Postscript::Model::Operators do
     end
   end
 
-describe Postscript::Model::Operators::Arithmetic::Sub do
-  it "pops operand_b first then operand_a from the parse stack" do
-    stack = Postscript::Source::OperandStack.new
-    stack.push(5)   # operand_a (source order)
-    stack.push(3)   # operand_b
-    op = described_class.from_operands(stack)
-    expect(op.operand_a).to eq(5)
-    expect(op.operand_b).to eq(3)
-    expect(stack.empty?).to be true
+  describe Postscript::Model::Operators::Arithmetic::Sub do
+    it "pops operand_b first then operand_a from the parse stack" do
+      stack = Postscript::Source::OperandStack.new
+      stack.push(5)   # operand_a (source order)
+      stack.push(3)   # operand_b
+      op = described_class.from_operands(stack)
+      expect(op.operand_a).to eq(5)
+      expect(op.operand_b).to eq(3)
+      expect(stack.empty?).to be true
+    end
   end
-end
 end

@@ -11,7 +11,10 @@ module Postscript
     module_function
 
     def call(value)
-      raise ArgumentError, "non-finite number: #{value.inspect}" unless value.finite?
+      unless value.finite?
+        raise ArgumentError,
+              "non-finite number: #{value.inspect}"
+      end
 
       normalized = value.zero? ? 0.0 : value
       return normalized.to_i.to_s if normalized == normalized.to_i

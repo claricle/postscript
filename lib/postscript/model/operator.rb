@@ -49,7 +49,7 @@ module Postscript
     # output of +findfont+, +add+, +dup+). Carries no semantic value;
     # its purpose is to keep the parse-stack shape in sync with the
     # runtime stack so chained operators parse cleanly.
-    class Computed < ::Struct.new(:operator_keyword, keyword_init: true)
+    Computed = ::Struct.new(:operator_keyword, keyword_init: true) do
       def to_s
         "<computed:#{operator_keyword}>"
       end

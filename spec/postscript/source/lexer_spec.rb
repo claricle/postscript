@@ -10,7 +10,7 @@ RSpec.describe Postscript::Source::Lexer do
   it "tokenizes numbers and operators" do
     tokens = lex("10 20 moveto")
     expect(tokens.map(&:type)).to eq(%i[number number operator])
-    expect(tokens.map(&:value)).to eq(["10", "20", "moveto"])
+    expect(tokens.map(&:value)).to eq(%w[10 20 moveto])
   end
 
   it "preserves % characters inside string literals" do
