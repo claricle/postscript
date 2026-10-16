@@ -13,6 +13,10 @@ module Postscript
             freeze
           end
 
+          def operand_values
+            [gray]
+          end
+
           def self.from_operands(stack)
             new(gray: stack.pop_number)
           end
@@ -27,6 +31,10 @@ module Postscript
             @green = green
             @blue = blue
             freeze
+          end
+
+          def operand_values
+            [red, green, blue]
           end
 
           def self.from_operands(stack)
