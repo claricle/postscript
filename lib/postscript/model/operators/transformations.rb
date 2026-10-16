@@ -14,6 +14,10 @@ module Postscript
             freeze
           end
 
+          def operand_values
+            [tx, ty]
+          end
+
           def self.from_operands(stack)
             ty = stack.pop_number
             tx = stack.pop_number
@@ -29,6 +33,10 @@ module Postscript
             @sx = sx
             @sy = sy
             freeze
+          end
+
+          def operand_values
+            [sx, sy]
           end
 
           def self.from_operands(stack)
@@ -59,6 +67,10 @@ module Postscript
           def initialize(matrix:)
             @matrix = matrix
             freeze
+          end
+
+          def operand_values
+            @matrix.dup
           end
 
           def self.from_operands(stack)

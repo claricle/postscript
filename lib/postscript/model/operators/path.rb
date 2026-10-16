@@ -18,6 +18,10 @@ module Postscript
             freeze
           end
 
+          def operand_values
+            [x, y]
+          end
+
           def self.from_operands(stack)
             y = stack.pop_number
             x = stack.pop_number
@@ -52,6 +56,10 @@ module Postscript
             freeze
           end
 
+          def operand_values
+            [x, y]
+          end
+
           def self.from_operands(stack)
             y = stack.pop_number
             x = stack.pop_number
@@ -67,6 +75,10 @@ module Postscript
             @dx = dx
             @dy = dy
             freeze
+          end
+
+          def operand_values
+            [dx, dy]
           end
 
           def self.from_operands(stack)
@@ -88,6 +100,10 @@ module Postscript
             @x3 = x3
             @y3 = y3
             freeze
+          end
+
+          def operand_values
+            [x1, y1, x2, y2, x3, y3]
           end
 
           def self.from_operands(stack)
@@ -115,6 +131,10 @@ module Postscript
             freeze
           end
 
+          def operand_values
+            [dx1, dy1, dx2, dy2, dx3, dy3]
+          end
+
           def self.from_operands(stack)
             dy3 = stack.pop_number
             dx3 = stack.pop_number
@@ -139,6 +159,10 @@ module Postscript
             freeze
           end
 
+          def operand_values
+            [x, y, radius, angle1, angle2]
+          end
+
           def self.from_operands(stack)
             angle2 = stack.pop_number
             angle1 = stack.pop_number
@@ -160,6 +184,10 @@ module Postscript
             @angle1 = angle1
             @angle2 = angle2
             freeze
+          end
+
+          def operand_values
+            [x, y, radius, angle1, angle2]
           end
 
           def self.from_operands(stack)

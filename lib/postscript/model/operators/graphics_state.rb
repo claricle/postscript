@@ -25,6 +25,10 @@ module Postscript
             freeze
           end
 
+          def operand_values
+            [width]
+          end
+
           def self.from_operands(stack)
             new(width: stack.pop_number)
           end
