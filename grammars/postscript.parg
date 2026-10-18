@@ -1,0 +1,14 @@
+// PostScript grammar — PARG source (parsanol grammar language).
+//
+// Issue: claricle/postscript#4. Compiles via the parsanol PARG
+// toolchain to the artifact the native engine registers:
+//
+//   parsanol parg compile grammars/postscript.parg -o grammars/postscript.json
+//
+// Skeleton below marks the sections the real grammar must cover
+// (extracted from lib/postscript/source/{lexer,ast_builder}.rb):
+
+// program := { ws | comment | literal | operator }
+// comment := "%" [^\n]*
+// literal := number | string | hex_string | name | array | procedure | dictionary
+// operator := <keyword per Model::Operators registry>
