@@ -29,7 +29,8 @@ RSpec.describe Postscript::Model::Operators::Path do
 
   describe "::Rmoveto / ::Rlineto" do
     it "exposes dx/dy" do
-      stack.push(3); stack.push(4)
+      stack.push(3)
+      stack.push(4)
       op = described_class::Rmoveto.from_operands(stack)
       expect(op.dx).to eq(3)
       expect(op.dy).to eq(4)
@@ -38,9 +39,15 @@ RSpec.describe Postscript::Model::Operators::Path do
 
   describe "::Curveto" do
     it "pops 6 operands in reverse source order" do
-      stack.push(1); stack.push(2)   # x1 y1
-      stack.push(3); stack.push(4)   # x2 y2
-      stack.push(5); stack.push(6)   # x3 y3 (top)
+      # x1 y1
+      stack.push(1)
+      stack.push(2)
+      # x2 y2
+      stack.push(3)
+      stack.push(4)
+      # x3 y3 (top)
+      stack.push(5)
+      stack.push(6)
       op = described_class::Curveto.from_operands(stack)
       expect([op.x1, op.y1]).to eq([1, 2])
       expect([op.x2, op.y2]).to eq([3, 4])
@@ -50,9 +57,14 @@ RSpec.describe Postscript::Model::Operators::Path do
 
   describe "::Arc" do
     it "pops angle2, angle1, radius, y, x in that order" do
-      stack.push(50); stack.push(50)  # x y
-      stack.push(25)                  # radius
-      stack.push(0); stack.push(360)  # angle1 angle2 (top)
+      # x y
+      stack.push(50)
+      stack.push(50)
+      # radius
+      stack.push(25)
+      # angle1 angle2 (top)
+      stack.push(0)
+      stack.push(360)
       op = described_class::Arc.from_operands(stack)
       expect(op.x).to eq(50)
       expect(op.y).to eq(50)

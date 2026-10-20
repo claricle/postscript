@@ -9,7 +9,8 @@ RSpec.describe Postscript::Model::Operators::Transformations do
 
   describe "::Translate" do
     it "pops ty then tx" do
-      stack.push(10); stack.push(20)
+      stack.push(10)
+      stack.push(20)
       op = described_class::Translate.from_operands(stack)
       expect(op.tx).to eq(10)
       expect(op.ty).to eq(20)
@@ -18,7 +19,8 @@ RSpec.describe Postscript::Model::Operators::Transformations do
 
   describe "::Scale" do
     it "pops sy then sx" do
-      stack.push(2); stack.push(3)
+      stack.push(2)
+      stack.push(3)
       op = described_class::Scale.from_operands(stack)
       expect(op.sx).to eq(2)
       expect(op.sy).to eq(3)
