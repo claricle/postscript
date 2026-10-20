@@ -140,6 +140,5 @@ module Postscript
         .gsub("\t", '\\t')
       "(#{escaped})"
     end
-
   end
 end

@@ -29,7 +29,8 @@ module Postscript
       exit 1
     end
 
-    desc "serialize INPUT [OUTPUT]", "Round-trip a PS file through parse + serialize"
+    desc "serialize INPUT [OUTPUT]",
+         "Round-trip a PS file through parse + serialize"
     long_desc <<~DESC
       Read INPUT, parse to a Model::Program, serialize back to PS
       source. Writes to OUTPUT if given, otherwise stdout.
@@ -58,7 +59,8 @@ module Postscript
     def tokenize(input_path)
       source = read_input(input_path)
       Postscript.tokenize(source).each do |token|
-        puts "%4d:%-4d %-12s %s" % [token.line, token.column, token.type, token.value]
+        puts "%4d:%-4d %-12s %s" % [token.line, token.column, token.type,
+                                    token.value]
       end
     rescue Postscript::Error => e
       say "Lex error: #{e.message}", :red

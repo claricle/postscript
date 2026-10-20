@@ -29,7 +29,10 @@ RSpec.describe Postscript::Model::Operators::Color do
 
   describe "::Setcmykcolor" do
     it "pops key, yellow, magenta, cyan in that order" do
-      stack.push(0.1); stack.push(0.2); stack.push(0.3); stack.push(0.4)
+      stack.push(0.1)
+      stack.push(0.2)
+      stack.push(0.3)
+      stack.push(0.4)
       op = described_class::Setcmykcolor.from_operands(stack)
       expect(op.cyan).to eq(0.1)
       expect(op.magenta).to eq(0.2)
@@ -40,7 +43,9 @@ RSpec.describe Postscript::Model::Operators::Color do
 
   describe "::Sethsbcolor" do
     it "pops brightness, saturation, hue in that order" do
-      stack.push(0.1); stack.push(0.2); stack.push(0.3)
+      stack.push(0.1)
+      stack.push(0.2)
+      stack.push(0.3)
       op = described_class::Sethsbcolor.from_operands(stack)
       expect(op.hue).to eq(0.1)
       expect(op.saturation).to eq(0.2)
