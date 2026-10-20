@@ -45,6 +45,12 @@ RSpec.describe Postscript::Source::Lexer do
     expect(tokens[0].value).to eq("DEADBEEF")
   end
 
+  it "rejects a ')' outside a string literal" do
+    expect { lex("1 2\n  ) add") }.to raise_error(
+      Postscript::LexError, "unbalanced ')' outside a string literal"
+    ) { |error| expect(error.source_position).to eq([2, 3]) }
+  end
+
   it "tokenizes dict delimiters" do
     tokens = lex("<< /A 1 /B 2 >>")
     types = tokens.map(&:type)

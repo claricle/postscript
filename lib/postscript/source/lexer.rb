@@ -80,6 +80,7 @@ module Postscript
             start_hexstring
           end
         when ">"        then maybe_close_dict
+        when ")"        then unbalanced_paren!
         when "{"        then advance and emit(:proc_open, "{")
         when "}"        then advance and emit(:proc_close, "}")
         when "["        then advance and emit(:array_open, "[")
@@ -249,6 +250,14 @@ module Postscript
                                     line: @hex_start[:line], column: @hex_start[:column])
         @hex_start = nil
         @state = :top
+      end
+
+      # A ")" outside a string closes nothing. Every other delimiter is
+      # consumed above; this one would reach scan_word_or_number, which
+      # consumes no delimiter, and the lexer would never advance.
+      def unbalanced_paren!
+        raise LexError.new("unbalanced ')' outside a string literal",
+                           source_position: [@line, @column])
       end
 
       def maybe_close_dict
