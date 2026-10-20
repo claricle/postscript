@@ -4,11 +4,11 @@ Issue: [Extract the PostScript grammar as PARG and port the parser to the parsan
 
 ## Outcome and scope
 
-Move the source syntax contract from the hand-written lexer into a guide-derived PARG grammar, ship its compiled artifact with this gem, and use a native tokenization path when its supported engine is available. `Postscript::Source.parse(source)` must continue returning the same typed `Postscript::Model::Program`; the existing Ruby lexer remains the fallback. The native lexer may replace that fallback only after token-stream parity is established.
+Move the source syntax contract from the hand-written lexer into a guide-derived PARG grammar, ship its compiled artifact with this gem, and add an opt-in native tokenization path on the parsanol engine. `Postscript::Source.parse(source)` must continue returning the same typed `Postscript::Model::Program`; the existing Ruby lexer remains the default. The native lexer may become the default only after token-stream parity is established and it is measured faster than the Ruby lexer.
 
 The grammar describes syntax, not runtime semantics. It accepts operator names as names. PostScript Language Level support belongs to operator vocabulary metadata and post-parse validation, not duplicate level-specific grammars. Existing Ruby `AstBuilder` behavior, including operator construction through `Model::Operator.from_operands`, remains the AST construction boundary. A guide syntax form omitted from the historical skeleton (such as immediately evaluated `//` names) is an inventory/spec gap to resolve explicitly, not silent scope expansion.
 
-This plan covers the grammar and artifact, their packaging and CI checks, native/fallback dispatch, compatibility evidence, Language Guide vocabulary coverage, minimal post-parse level validation, and before/after parse benchmarks. It does not authorize implementation. It does not include interpreter semantics, a broad conformance framework, rendering changes, or replacing the Ruby AST builder.
+This plan covers the grammar and artifact, their packaging and CI checks, opt-in native engine selection, compatibility evidence, Language Guide vocabulary coverage, minimal post-parse level validation, and before/after parse benchmarks. It does not authorize implementation. It does not include interpreter semantics, a broad conformance framework, rendering changes, or replacing the Ruby AST builder.
 
 ## Requirement reconciliation
 
@@ -18,11 +18,11 @@ This plan covers the grammar and artifact, their packaging and CI checks, native
 | Confirmed correction | Use the PostScript Language Guide as the normative syntax and vocabulary contract. Derive rules from its syntax pages and check all command categories and level references. [Issue comment](https://github.com/claricle/postscript/issues/4#issuecomment-6247408519) |
 | Confirmed correction | The canonical grammar and compiled JSON originate in `claricle/postscript-parg`; vendor both into this repository. The PARG framework, embedded tests, and compiled-artifact parity CI are reported as merged upstream. [Issue comment](https://github.com/claricle/postscript/issues/4#issuecomment-6256686705) |
 | Confirmed decision | Keep one level-agnostic grammar/artifact. Represent levels as operator-registry metadata and apply level checks after parsing, preserving tolerant parsing. [Issue comment](https://github.com/claricle/postscript/issues/4#issuecomment-6247605502) |
-| Unresolved integration constraint | The original issue says to ride the parsanol Rust/Ruby pair and that this gem needs no FFI layer. A later comment reports a `claricle/postscript-rs` tokenizer/parser and FFI scaffold, but does not explicitly rescind that constraint. Keep the no-new-FFI constraint unless the issue owner clarifies it; determine whether the parsanol route can meet the token contract. |
-| Verified upstream state | The canonical [`postscript-parg` snapshot b2cbfe2](https://github.com/claricle/postscript-parg/commit/b2cbfe2) contains `postscript.parg` and JSON; its PARG entry has no captures. Its current CI uses the released parsanol CLI for smoke tests and fresh-compile payload equality (ignoring checksum/compiler-version envelope fields). The separate [`postscript-rs` snapshot c3e2361](https://github.com/claricle/postscript-rs/commit/c3e2361) is a scaffold: `tokenize(_source)` returns an empty vector; its token enum has no Ruby-compatible positions, DSC/header support, or integer fidelity, and its FFI has only a version function. These main-branch observations are not evidence that a published release provides the needed integration. |
-| Verified candidate API | The [`parsanol-ruby` v1.3.94 source at 8d4f86c](https://github.com/parsanol/parsanol-ruby/commit/8d4f86c) exposes `Parsanol::PARG::Artifact.load(path)` and `parse(entry, input, mode: :native)`; the v1.3.94 code is confirmed identical to [v1.3.95](https://github.com/parsanol/parsanol-ruby/tree/v1.3.95) for this API. The latter calls `Native.parse` only when `Native.available?`; otherwise it executes the Ruby atom runtime. Thus `mode: :native` alone does not prove native execution. Verify exact released dependency and native extension/platform behavior used by implementation. |
-| Unresolved design | Choose between the released parsanol artifact route and a future-capable `postscript-rs` route. The capture-free grammar and current Rust token type cannot yet supply the flat `Model::Token` stream with positions, DSC data, and integer fidelity. Prove artifact-to-token adaptation, byte/offset/line-column parity, error mapping, and genuinely native execution before dispatch is selected. Otherwise keep Ruby dispatch and identify the upstream prerequisite. |
-| Unresolved compatibility edge | Build a drift matrix against the current lexer: top-level-only `dsc_comment`, composite rules consuming comments, nonempty literal names, Ruby backslash names, immediately evaluated `//` names omitted by the skeleton, EOF/tolerance behavior, and malformed or unbalanced input. Preserve current public parse/error behavior where required; document intentional guide corrections explicitly. |
+| Decided | Native parsing rides the parsanol Rust/Ruby pair, as the original issue says; this gem adds no FFI layer. `claricle/postscript-rs` is out of scope for this issue. |
+| Verified upstream state | The canonical [`postscript-parg` snapshot b2cbfe2](https://github.com/claricle/postscript-parg/commit/b2cbfe2) has no captures, so it returns the whole input as one slice. [postscript-parg#3](https://github.com/claricle/postscript-parg/pull/3) captures every token under its rule name (integer, real, radix, name, string, hex_string, literal_name, array, procedure, dictionary, and top-level DSC comments as dsc), with choice order unchanged. Its CI runs the released parsanol CLI for embedded tests and fresh-compile payload equality. |
+| Verified upstream defect | parsanol-ruby ≤ 1.3.95 (crate ≤ 0.18.8) returns wrong, *successful* parses for inputs of 8 KB or more: the bytecode VM, used from that size, decoded PARG's escaped classes (`[\x61-\x7a]`) wrongly and the bridge accepted a short parse. Fixed in [parsanol-rs#251](https://github.com/parsanol/parsanol-rs/pull/251) (crate 0.18.9) and [parsanol-ruby#242](https://github.com/parsanol/parsanol-ruby/pull/242) (gem 1.3.96, also versions the compiled-program cache). The native path requires `parsanol >= 1.3.96`. `Artifact#parse(entry, input, mode: :native)` falls back to the Ruby atom runtime when `Native.available?` is false, so the adapter must check that itself. parsanol requires Ruby ≥ 3.2; this gem supports ≥ 3.0. |
+| Decided | parsanol is an optional dependency, not in the gemspec. Native tokenization is opt-in through `Source.parse(source, engine: :native)`; that call raises a clear error when parsanol ≥ 1.3.96 or its native extension is unavailable, and never silently runs the Ruby atom runtime. The default stays the Ruby lexer: measured with the fixed engine, native parse plus token conversion is 10–24× slower than `Lexer.tokenize` (5 KB: 86 ms vs 6 ms; 943 KB: 30 s vs 1.2 s). |
+| Decided | Where the grammar and the current lexer disagree, the lexer wins for now: the parity spec requires identical tokens and the grammar is adjusted upstream to match. Each guide difference found (candidates: top-level-only `dsc_comment`, composite rules consuming comments, nonempty literal names, Ruby backslash names, immediately evaluated `//` names, EOF/tolerance behavior, malformed or unbalanced input) is recorded as a follow-up issue, not changed silently. |
 
 ## Current implementation
 
@@ -36,35 +36,35 @@ This plan covers the grammar and artifact, their packaging and CI checks, native
 
 | Owner | Repository/evidence | Required contribution or constraint |
 |---|---|---|
-| This repository | `claricle/postscript` | Vendor canonical PARG and JSON, package/CI checks, Ruby-side adapter and metadata/validation only after capability proof. |
-| PARG upstream | [`claricle/postscript-parg` b2cbfe2](https://github.com/claricle/postscript-parg/commit/b2cbfe2) | Grammar and artifact source; current entry has no captures, so token extraction needs a proven route. |
-| Engine upstream | [`claricle/postscript-rs` c3e2361](https://github.com/claricle/postscript-rs/commit/c3e2361) or [`parsanol-ruby` v1.3.94](https://github.com/parsanol/parsanol-ruby/commit/8d4f86c) / [v1.3.95](https://github.com/parsanol/parsanol-ruby/tree/v1.3.95) | Must provide truly native parsing plus a path to the Ruby token contract; current Rust tokenizer is stubbed. Any tokenizer/ABI work here is outside the estimate until scoped. |
+| This repository | `claricle/postscript` | Vendor canonical PARG and JSON, package/CI checks, the opt-in Ruby-side adapter, metadata and validation. |
+| PARG upstream | [`claricle/postscript-parg#3`](https://github.com/claricle/postscript-parg/pull/3) | Token captures. Must be merged before the grammar is vendored. |
+| Engine upstream | [`parsanol-rs#251`](https://github.com/parsanol/parsanol-rs/pull/251) → crate 0.18.9; [`parsanol-ruby#242`](https://github.com/parsanol/parsanol-ruby/pull/242) → gem 1.3.96 | VM correctness for PARG grammars and a versioned program cache. Must be released before the native adapter merges. |
 
-Effort is active engineer time in person-hours, including focused investigation and validation; elapsed time waiting on upstream releases or CI is excluded. Conditional Ruby-repository work items sum to 13–23 hours, assuming the selected upstream engine can provide the required capabilities. A 20% contingency is 2.6–4.6 hours, for an exact conditional total of **15.6–27.6 hours**. Any upstream tokenizer/ABI implementation needed to reach that capability is a separate, currently unestimated prerequisite and is not included.
+Effort is active engineer time in person-hours, including focused investigation and validation; elapsed time waiting on upstream releases or CI is excluded. Work items sum to 12–20 hours; a 20% contingency is 2.4–4.0 hours, for a total of **14.4–24 hours**.
 
-### 1. Resolve native integration boundary — 2–4 h
+### 1. Confirm the released engine — 1 h
 
-Inspect the released `parsanol` Ruby package and the current `claricle/postscript-rs` workspace/API. The v1.3.94 artifact API (confirmed identical at tag v1.3.95) has `Parsanol::PARG::Artifact.load(path)` and `parse(entry, input, mode: :native)`, but `:native` runs the Ruby atom runtime whenever `Native.available?` is false; the observed Rust `tokenize` is a stub and its token enum lacks required fields. Compare artifact loading, explicit native-availability detection, grammar capture/CST extraction, token fields and byte positions, DSC/header representation, integer fidelity, error translation, supported Ruby/platform matrix, and release/dependency status. Choose the integration route only when a minimal sample proves artifact-to-token adaptation and genuinely native execution. Record the supported API and exact released dependency version in the implementation PR. If neither route supports this contract, document the missing upstream capability and keep implementation on the Ruby fallback.
+The route is decided (parsanol, opt-in). Once parsanol 1.3.96 is released, confirm on it that the captured artifact parses natively (`Native.available?` true) on the CI platforms, that the 8 KB-or-more fixtures parse identically in `mode: :native` and `mode: :ruby`, and record the exact version in the implementation PR.
 
-**Files/symbols:** inspect `Gemfile`, `postscript.gemspec`, `lib/postscript/source.rb`, `lib/postscript/source/lexer.rb`, `Model::Token`, and upstream `Artifact.load`, `parse`, `Native.available?`, Rust `tokenize`, and FFI APIs. Runtime integration files are conditional on this spike; name them only after the target API is verified.
-
-**Depends on:** none. This decision gates work item 3.
+**Depends on:** parsanol 1.3.96 released.
 
 ### 2. Vendor and continuously validate the canonical grammar — 2–4 h
 
-Copy the canonical upstream grammar and compiled artifact into `grammars/postscript.parg` and `grammars/postscript.json` (using the verified upstream filenames `postscript.parg` and its compiled JSON artifact). Keep the upstream grammar as the source of truth and document the update procedure in `grammars/README.md`. Preserve its embedded smoke tests and compile-versus-checked-in-artifact payload parity check in this repository's CI, using `bundle exec parsanol parg test` and `bundle exec parsanol parg compile` (verify flags/options against pinned release docs). Add a small repository task/script to compare compiled payloads after ignoring envelope checksum/compiler-version metadata. Separately load the committed artifact through `Parsanol::PARG::Artifact.load` to validate its checksum; payload equality does not replace envelope validation. Verify the vendored files match the pinned upstream source and artifact. Ensure the packaged gem includes both files by checking `Gem::Specification#files` or the built gem contents.
+Copy the canonical upstream grammar and compiled artifact into `grammars/postscript.parg` and `grammars/postscript.json` (using the verified upstream filenames `postscript.parg` and its compiled JSON artifact). Keep the upstream grammar as the source of truth and document the update procedure in `grammars/README.md`. Preserve its embedded smoke tests and compile-versus-checked-in-artifact payload parity check in this repository's CI (in a job on Ruby ≥ 3.2 that installs parsanol as a development dependency only), using `bundle exec parsanol parg test` and `bundle exec parsanol parg compile` (verify flags/options against pinned release docs). Add a small repository task/script to compare compiled payloads after ignoring envelope checksum/compiler-version metadata. Separately load the committed artifact through `Parsanol::PARG::Artifact.load` to validate its checksum; payload equality does not replace envelope validation. Verify the vendored files match the pinned upstream source and artifact. Ensure the packaged gem includes both files by checking `Gem::Specification#files` or the built gem contents.
 
 Review grammar rules against the guide pages listed in the issue correction: `docs/syntax/tokens.adoc`, `objects.adoc`, `data-types.adoc`, `strings.adoc`, `arrays.adoc`, `dictionaries.adoc`, `procedures.adoc`, and `operators.adoc`. Treat `docs/commands/**` as vocabulary coverage and `docs/levels/*` as level metadata coverage. The grammar accepts names independently of the target language level.
 
 **Files:** existing `grammars/README.md`; proposed `grammars/postscript.parg`, `grammars/postscript.json`; proposed `.github/workflows/grammar.yml` (the existing `rake.yml` is autogenerated); proposed `script/check_parg_artifact.rb` for payload parity; gemspec packaging check.
 
-**Depends on:** work item 1 for compiler and artifact-loading version details; can proceed alongside the Ruby metadata inventory in work item 4 once exact guide paths are checked out or otherwise available.
+**Depends on:** postscript-parg#3 merged; can proceed alongside the Ruby metadata inventory in work item 4 once exact guide paths are checked out or otherwise available.
 
-### 3. Add native tokenization with an unchanged public parse boundary — 3–6 h
+### 3. Add opt-in native tokenization with an unchanged public parse boundary — 3–6 h
 
-Integrate the selected engine behind `Postscript::Source.parse` in `lib/postscript/source.rb`. The native path must supply the same token contract consumed by `AstBuilder.build`: `Model::Token` type/value/line/column/literal readers (where `literal` marks a leading-slash name), and DSC/comment behavior required by the builder. Keep `AstBuilder` and `Model::Operator.from_operands` Ruby-side. Select native tokenization when supported; otherwise call `Lexer.tokenize` exactly as today. Map native syntax failures to the existing `Postscript::LexError`/`Postscript::SyntaxError` contract and `source_position` array `[line, column]` where available. Do not broadly catch parser failures and retry Ruby, which could hide native-path defects or change error behavior. Do not expose engine-specific tokens as a new public API.
+Add `Source.parse(source, engine: :ruby)`; `engine: :native` tokenizes with the vendored artifact through parsanol and `engine: :ruby` (the default) calls `Lexer.tokenize` exactly as today. The native adapter loads parsanol lazily, requires `>= 1.3.96` and `Native.available?`, and raises a clear error otherwise; it never runs the Ruby atom runtime in place of the native engine. It converts captures to the same token contract consumed by `AstBuilder.build`: `Model::Token` type/value/line/column/literal readers, with line/column computed from capture byte offsets, and DSC/comment behavior required by the builder. Keep `AstBuilder` and `Model::Operator.from_operands` Ruby-side.
 
-**Files/symbols:** `lib/postscript/source.rb`, `Postscript::Source.parse`, `Postscript::Source::Lexer`, `Postscript::Source::AstBuilder`, `Postscript::Model::Token`, `lib/postscript/errors.rb`; add a narrowly scoped adapter only at the verified path selected by work item 1.
+Errors: when the native parse fails, run `Lexer.tokenize` on the same source to raise the error. Failures then carry exactly the current `Postscript::LexError`/`Postscript::SyntaxError` class, message and `source_position`. This is limited to failed parses; successful native parses are never retried, so parity defects stay visible to the parity spec. Do not expose engine-specific tokens as a new public API. Do not add parsanol to the gemspec.
+
+**Files/symbols:** `lib/postscript/source.rb`, `Postscript::Source.parse`, `Postscript::Source::Lexer`, proposed `lib/postscript/source/native_lexer.rb`, `Postscript::Model::Token`, `lib/postscript/errors.rb`.
 
 **Depends on:** work items 1 and 2.
 
@@ -76,9 +76,9 @@ Compare every operator in the Guide's command categories with the gem's registry
 
 **Depends on:** work item 2 for the Guide vocabulary source. This can be implemented independently of native dispatch after the grammar scope is confirmed.
 
-### 5. Prove token and model parity, fallback behavior, and performance — 3–4 h
+### 5. Prove token and model parity, error behavior, and performance — 3–4 h
 
-Use the existing lexer as the parity oracle. Compare token streams over focused syntax cases and all relevant repository fixtures, including exact positions and literal-name flags. Compare native and fallback `Model::Program` results over the current suite and source corpus, plus error class and `source_position` `[line, column]` for malformed strings, hex strings, and unbalanced composites. Verify native-unavailable dispatch reaches the pure-Ruby fallback. Use proposed `benchmark/corpus.json` to pin local fixtures and the external [`postsvg` fixture corpus at b699673](https://github.com/claricle/postsvg/commit/b699673d1a98235e38ad81f828ea2906ef3ada1c), including `spec/fixtures/ps2svg/new_tests/01_paths.ps` through `12_full_feature_test.ps` and `spec/fixtures/eps2svg/img.eps`; record expected parse failures separately and do not assume every rendering fixture parses as a complete document. Record a repeatable before/after benchmark on the same valid postscript/postsvg inputs and environment, with corpus manifest, successful/failed counts, and command in the PR; do not claim a speedup without measured results.
+Use the existing lexer as the parity oracle. Compare token streams over focused syntax cases and all relevant repository fixtures, including exact positions and literal-name flags. Compare native and Ruby-lexer `Model::Program` results over the current suite and source corpus, plus error class and `source_position` `[line, column]` for malformed strings, hex strings, and unbalanced composites. Verify that without parsanol the default path is unchanged and `engine: :native` raises a clear error. Use proposed `benchmark/corpus.json` to pin local fixtures and the external [`postsvg` fixture corpus at b699673](https://github.com/claricle/postsvg/commit/b699673d1a98235e38ad81f828ea2906ef3ada1c), including `spec/fixtures/ps2svg/new_tests/01_paths.ps` through `12_full_feature_test.ps` and `spec/fixtures/eps2svg/img.eps`; record expected parse failures separately and do not assume every rendering fixture parses as a complete document. Record a repeatable before/after benchmark on the same valid postscript/postsvg inputs and environment, with corpus manifest, successful/failed counts, and command in the PR; do not claim a speedup without measured results. The benchmark decides whether native may later become the default; current measurements say it may not.
 
 The inspected `postsvg` converter currently calls `Postsvg::Parser.parse`, backed by its Parslet parser. Establish the actual consumer integration entry point before claiming a downstream smoke test; parsing its fixture corpus through `Postscript::Source.parse` alone does not demonstrate converter integration. Consumer changes and rendering verification require separately scoped work.
 
@@ -94,9 +94,9 @@ The commands below are **planned**, not run as part of this plan. Confirm exact 
 |---|---:|---|
 | Grammar and compiled artifact are local, guide-derived, tested, and packaged | 2 | Run the upstream-supported PARG embedded-test command against `grammars/postscript.parg`; all embedded tests pass. Compile to a temporary artifact and compare payload with `grammars/postscript.json` after excluding envelope metadata; payloads match. Build the gem and inspect its file list; both artifacts are present. |
 | Full Guide vocabulary is accepted and level coverage is complete | 2, 4 | CI compares Guide command names/categories to grammar name acceptance and the loaded Ruby registry; no Guide category/operator is silently omitted. A Level 3-only operator remains syntactically accepted in the same grammar and is marked as unavailable by Level 1/2 metadata validation. |
-| Native and Ruby token streams agree before dispatch switches | 3, 5 | Differential checks assert token type, value, line, column, and `literal` for the same inputs. Include comments/DSC, delimiter boundaries, radix and decimal forms, escaped/nested strings, hex strings, arrays, procedures, dictionaries, and names. All assertions match. |
-| `Model::Program` parity across existing suite/fixtures | 3, 5 | Run `bundle exec rspec` (the issue cites 149 examples); compare native and forced-fallback results on the suite and corpus. AST node classes/fields, headers, operator construction, unknown operators, and user procedure invocation match. |
-| Pure-Ruby fallback remains intact | 3, 5 | Run focused source specs with native support unavailable/disabled; `Postscript::Source.parse` returns the same program and errors as the baseline Ruby path. |
+| Native and Ruby token streams agree | 3, 5 | Differential checks assert token type, value, line, column, and `literal` for the same inputs. Include comments/DSC, delimiter boundaries, radix and decimal forms, escaped/nested strings, hex strings, arrays, procedures, dictionaries, and names. All assertions match. |
+| `Model::Program` parity across existing suite/fixtures | 3, 5 | Run `bundle exec rspec` (the issue cites 149 examples); compare `engine: :native` and `engine: :ruby` results on the suite and corpus. AST node classes/fields, headers, operator construction, unknown operators, and user procedure invocation match. |
+| Ruby lexer remains the default | 3, 5 | Without parsanol installed, `Postscript::Source.parse(source)` returns the same program and errors as before; `engine: :native` raises a clear error. |
 | Error behavior and token positions remain compatible | 3, 5 | Focused malformed-input cases assert `LexError`/`SyntaxError` class and `source_position`; token locations preserve the current one-based line/column contract. |
 | Benchmarks are recorded | 5 | Run the same benchmark command and corpus against baseline Ruby and native paths; include manifest/SHA, expected failures, environment, corpus identity/size, warm-up/repetition method, and measured results in the implementation PR. |
 | Project checks pass | 2–5 | Run `bundle exec rake` (RSpec and RuboCop via `Rakefile`) and the grammar compile/test checks. Record exact commands and outcomes; these remain planned until run. |
@@ -121,24 +121,27 @@ Baseline: `bundle exec rake` is the repository's default RSpec + RuboCop task. T
 
 ## Sequencing and integration
 
-Work item 1 is the first executable action and gates native adapter/dependency choices. Work items 2 and 4 can overlap after the source/metadata inputs are available; both converge before final CI acceptance. Work item 3 follows the integration decision and vendored artifact format. Work item 5 is the final integration gate. Keep native dispatch behind a small boundary so the baseline fallback remains selectable in tests and diagnostics.
+Delivered as separate PRs:
 
-If upstream integration prerequisites are not released or cannot produce the required token contract, complete grammar/artifact and vocabulary work independently, leave the native adapter conditional, and report the parity/performance criteria as blocked rather than representing scaffold existence as engine readiness.
+1. postscript-parg#3: token captures (upstream).
+2. Vendor the grammar and artifact with CI checks (work item 2), after postscript-parg#3 merges.
+3. Opt-in native lexer, parity spec, error mapping and benchmark (work items 1, 3, 5). It can be developed against a local parsanol build and merges after parsanol 1.3.96 is released.
+4. Operator vocabulary and language-level metadata (work item 4), independent of parsanol.
 
 ## Effort and uncertainty
 
 | Work item | Estimate |
 |---|---:|
-| 1. Native integration boundary | 2–4 h |
+| 1. Confirm the released engine | 1 h |
 | 2. Vendor grammar/artifact and CI | 2–4 h |
-| 3. Native tokenization boundary | 3–6 h |
+| 3. Opt-in native tokenization | 3–6 h |
 | 4. Operator vocabulary/levels | 3–5 h |
-| 5. Parity, fallback, benchmarks | 3–4 h |
-| **Subtotal** | **13–23 h** |
-| Contingency (20%) | 2.6–4.6 h |
-| **Conditional total** | **15.6–27.6 h** |
+| 5. Parity, errors, benchmarks | 3–4 h |
+| **Subtotal** | **12–20 h** |
+| Contingency (20%) | 2.4–4.0 h |
+| **Total** | **14.4–24 h** |
 
-The largest uncertainty is whether the released parsanol route can turn the capture-free artifact into Ruby-compatible positioned tokens while proving native execution. Work item 1 is bounded to that proof; the current Rust tokenizer is a stub and parsanol `:native` can use its Ruby interpreter when the native extension is unavailable. The 15.6–27.6-hour estimate is conditional on usable upstream capability. Any upstream tokenizer/ABI work is a blocked prerequisite with effort not estimated here. Estimates assume upstream grammar/artifact checks are reusable and the Guide is accessible at its cited paths.
+The largest remaining uncertainty is how many grammar/lexer differences the parity spec finds; each one is either a grammar change upstream or a follow-up issue. Native speed is a known limitation, not a blocker, because native is opt-in. Estimates assume the Guide is accessible at its cited paths.
 
 ## Progress and handoff
 
@@ -146,10 +149,10 @@ Status is **Not started** for every work item; this document records a plan, not
 
 | Work item | Status | Evidence / remaining gap |
 |---|---|---|
-| 1. Native integration boundary | Not started | Establish current published package and scaffold contracts; select route or document missing prerequisite. |
-| 2. Vendor grammar/artifact and CI | Not started | Confirm canonical filenames/tool version; vendor and verify package/CI parity. |
-| 3. Native tokenization boundary | Not started | Wait for work item 1 decision; implement only against proven token contract. |
+| 1. Confirm the released engine | Waiting | Route decided; the engine fix is in parsanol-rs#251 / parsanol-ruby#242, to be released as 1.3.96. |
+| 2. Vendor grammar/artifact and CI | Not started | Waiting on postscript-parg#3. |
+| 3. Opt-in native tokenization | Not started | Can be developed against a local parsanol build. |
 | 4. Operator vocabulary/levels | Not started | Map all Guide operators to current registry and Level 1/2/3 metadata. |
-| 5. Parity, fallback, benchmarks | Not started | Run differential and existing checks, then capture same-corpus benchmark. |
+| 5. Parity, errors, benchmarks | Not started | Run differential and existing checks, then capture same-corpus benchmark. |
 
-**Next executable action:** perform work item 1's bounded integration spike. The Ruby-repository implementation can proceed once that spike records a viable released integration route; if new tokenizer/ABI work is required, that upstream-owned prerequisite must be estimated and scheduled separately. No implementation has been authorized by this planning artifact.
+**Next executable action:** vendor the grammar once postscript-parg#3 merges, and develop the opt-in native lexer against a local parsanol 1.3.96 build.
