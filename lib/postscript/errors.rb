@@ -22,6 +22,10 @@ module Postscript
   # missing operands, malformed literal).
   class SyntaxError < ParseError; end
 
+  # engine: :native was asked for, but parsanol (>= 1.3.96, with its
+  # native extension) is not available.
+  class NativeEngineUnavailable < Error; end
+
   # PS -> SVG / serializer execution failed.
   class RenderError < Error
     attr_reader :operator_name

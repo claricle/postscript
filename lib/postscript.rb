@@ -8,6 +8,7 @@ module Postscript
   autoload :ParseError, "postscript/errors"
   autoload :LexError, "postscript/errors"
   autoload :SyntaxError, "postscript/errors"
+  autoload :NativeEngineUnavailable, "postscript/errors"
   autoload :RenderError, "postscript/errors"
   autoload :StackUnderflowError, "postscript/errors"
   autoload :UndefinedOperatorError, "postscript/errors"
@@ -42,8 +43,11 @@ module Postscript
     # Example:
     #   program = Postscript.parse(ps_source)
     #   program.body.each { |node| puts node.class }
-    def parse(source)
-      Source.parse(source)
+    #
+    # +engine: :native+ tokenizes on parsanol's native engine (needs the
+    # optional parsanol gem); see Source.
+    def parse(source, engine: :ruby)
+      Source.parse(source, engine: engine)
     end
 
     # One-shot: +Model::Program+ -> PS source string.
@@ -56,8 +60,8 @@ module Postscript
 
     # One-shot: PS source string -> array of +Model::Token+.
     # Useful for debugging or building alternative parsers.
-    def tokenize(source)
-      Source::Lexer.tokenize(source)
+    def tokenize(source, engine: :ruby)
+      Source.tokenize(source, engine: engine)
     end
   end
 end
