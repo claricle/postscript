@@ -49,7 +49,7 @@ module Postscript
         collected
       end
 
-      # rubocop:disable Metrics/MethodLength, Metrics/AbcSize, Metrics/CyclomaticComplexity
+      # rubocop:disable-next Metrics/MethodLength, Metrics/AbcSize, Metrics/CyclomaticComplexity
       def consume_token(token, collected)
         case token.type
         when :number
@@ -88,7 +88,6 @@ module Postscript
           1
         end
       end
-      # rubocop:enable Metrics/MethodLength, Metrics/AbcSize, Metrics/CyclomaticComplexity
 
       # Push a literal onto both the parse stack and the program body.
       # The body is what the visitor walks; the stack is what operator

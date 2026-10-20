@@ -8,6 +8,8 @@ RSpec.configure do |config|
   config.expect_with :rspec do |c|
     c.syntax = :expect
   end
+  # Operator classes register their keywords when loaded.
+  config.before(:suite) { Postscript::Model::Operators.load_all! }
 end
 
 module PostscriptSpecHelpers

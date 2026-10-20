@@ -3,13 +3,11 @@
 require "spec_helper"
 
 RSpec.describe Postscript::Model::Operators::Arithmetic do
-  before(:all) { Postscript::Model::Operators.load_all! }
-
   let(:stack) { Postscript::Source::OperandStack.new }
 
-  def binary_op(klass, a, b)
-    stack.push(a)
-    stack.push(b)
+  def binary_op(klass, left, right)
+    stack.push(left)
+    stack.push(right)
     klass.from_operands(stack)
   end
 

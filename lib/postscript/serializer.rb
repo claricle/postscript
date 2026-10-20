@@ -41,7 +41,7 @@ module Postscript
     # Returns true if the program body already contains a +showpage+
     # operator, so the serializer doesn't append a duplicate.
     def body_has_showpage?
-      program.body.any? { |s| s.is_a?(Model::Operators::Device::Showpage) }
+      program.body.any?(Model::Operators::Device::Showpage)
     end
 
     # All methods below this point are public. They are intentionally

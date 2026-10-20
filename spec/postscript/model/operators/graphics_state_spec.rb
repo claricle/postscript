@@ -3,8 +3,6 @@
 require "spec_helper"
 
 RSpec.describe Postscript::Model::Operators::GraphicsState do
-  before(:all) { Postscript::Model::Operators.load_all! }
-
   let(:stack) { Postscript::Source::OperandStack.new }
 
   describe "::Gsave / ::Grestore / ::Grestoreall" do

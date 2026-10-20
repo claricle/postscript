@@ -7,7 +7,9 @@ require "spec_helper"
 # equivalent program (modulo formatting normalization).
 #
 # Catches: serializer missing operands, parser losing information,
-# serializer re-emitting in a non-canonical form.
+# serializer re-emitting in a non-canonical form. It describes parse
+# and serialize together, not one class.
+# rubocop:disable-next RSpec/DescribeClass
 RSpec.describe "postscript round-trip property" do
   fixtures = [
     "simple square (path + fill)",

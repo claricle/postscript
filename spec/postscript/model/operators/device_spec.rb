@@ -3,8 +3,6 @@
 require "spec_helper"
 
 RSpec.describe Postscript::Model::Operators::Device do
-  before(:all) { Postscript::Model::Operators.load_all! }
-
   %i[Showpage Copypage Nulldevice].each do |op|
     describe "::#{op}" do
       it "is zero-arity" do

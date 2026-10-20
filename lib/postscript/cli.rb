@@ -18,12 +18,7 @@ module Postscript
     DESC
     def parse(input_path)
       source = read_input(input_path)
-      program = Postscript.parse(source)
-      say "Program: #{program.body.length} statement(s)"
-      say "BoundingBox: #{program.header.bounding_box.inspect}" if program.header.bounding_box
-      program.body.each do |node|
-        say "  #{node.class}"
-      end
+      describe_program(Postscript.parse(source))
     rescue Postscript::Error => e
       say "Parse error: #{e.message}", :red
       exit 1
@@ -73,6 +68,13 @@ module Postscript
     end
 
     private
+
+    def describe_program(program)
+      say "Program: #{program.body.length} statement(s)"
+      bounding_box = program.header.bounding_box
+      say "BoundingBox: #{bounding_box.inspect}" if bounding_box
+      program.body.each { |node| say "  #{node.class}" }
+    end
 
     def read_input(path)
       unless File.exist?(path)

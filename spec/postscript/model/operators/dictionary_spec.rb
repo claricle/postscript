@@ -3,8 +3,6 @@
 require "spec_helper"
 
 RSpec.describe Postscript::Model::Operators::Dictionary do
-  before(:all) { Postscript::Model::Operators.load_all! }
-
   let(:stack) { Postscript::Source::OperandStack.new }
 
   describe "::Dict" do
