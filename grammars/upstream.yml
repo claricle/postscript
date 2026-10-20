@@ -1,0 +1,7 @@
+# The vendored grammar and artifact are copies of these files at this
+# commit. script/check_grammar.rb fails if they differ.
+repository: claricle/postscript-parg
+commit: 5e6b8641007c3cbedf5abf755a4ab2ef76017808
+files:
+  - postscript.parg
+  - postscript.json

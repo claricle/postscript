@@ -1,0 +1,146 @@
+# PostScript grammar -- PARG source (parsanol grammar language).
+# Normative source: the PostScript Language Guide
+# (claricle/postscript-guide); each rule cites the guide page it
+# derives from. Extraction target: the hand-written lexer/AST builder
+# in claricle/postscript lib/postscript/source/ -- the rules below
+# mirror that lexer's state machine (whitespace set, delimiter set,
+# string escape set, DSC comments).
+# Level 1/2/3 (per the design decision in claricle/postscript#4):
+# this grammar is LEVEL-AGNOSTIC -- the operator vocabulary is registry
+# metadata, not grammar structure. Level-gated literal forms (e.g.
+# radix numbers, Level 2+) are marked inline.
+# Compile: parsanol parg compile postscript.parg -o postscript.json
+
+grammar PostScript version "0.1.0" {
+
+  ## Program: any sequence of whitespace, comments, and objects.
+  ## (guide: docs/syntax/tokens.adoc, docs/syntax/objects.adoc)
+  program = 0*( ws / dsc_comment as dsc / comment / object )
+
+  ## Whitespace: NUL HT LF FF CR SPACE (guide: docs/syntax/tokens.adoc).
+  ws = 1*( %x00 / %x09 / %x0A / %x0C / %x0D / %x20 )
+
+  ## Comment: "%" to end of line (guide: docs/syntax/tokens.adoc).
+  comment = "%" 0*( !(%x0A / %x0D) ANY )
+
+  ## DSC comment: "%%" line -- captured distinctly by the lexer
+  ## (document structuring conventions; passes through to the model).
+  dsc_comment = "%%" 0*( !(%x0A / %x0D) ANY )
+
+  ## Objects (guide: docs/syntax/objects.adoc). Every object is captured
+  ## under the name of its rule.
+  ## Ordered choice: number/radix before name (a word is classified by
+  ## shape, matching the lexer's scan_word_or_number + emit_word).
+  object = radix as radix / real as real / integer as integer / string as string / hex_string as hex_string / dictionary as dictionary / array as array / procedure as procedure / literal_name as literal_name / name as name
+
+  ## ------------------------------------------------------------------
+  ## Numbers (guide: docs/syntax/data-types.adoc)
+  ## ------------------------------------------------------------------
+
+  digit = %x30-39
+
+  sign = ["+" / "-"]
+
+  ## Integer: optional sign + digits. The !name_char guard enforces the
+  ## lexer's maximal-munch word scan -- "123abc" is ONE name, not
+  ## integer "123" + name "abc".
+  integer = sign 1*digit !name_char
+
+  ## Real: sign + (fraction and/or exponent) -- a bare digit run is an
+  ## integer, so real requires "." or an exponent (e.g. 3.45, -7.89,
+  ## 1.0e10, 6E23, -.002).
+  real = sign ( 1*digit ["." 0*digit] exponent / 1*digit "." 0*digit / "." 1*digit [exponent] ) !name_char
+
+  exponent = ( %x65 / %x45 ) [sign] 1*digit
+
+  ## Radix number: base#value (e.g. 16#FF) -- LEVEL 2+ (marked per the
+  ## level-gating decision; see claricle/postscript#4).
+  radix = 1*digit "#" 1*( digit / %x41-5A / %x61-7A ) !name_char
+
+  ## ------------------------------------------------------------------
+  ## Strings (guide: docs/syntax/strings.adoc)
+  ## ------------------------------------------------------------------
+
+  ## Literal string: balanced parentheses, "\" escapes
+  ## (\n \r \t \b \f \\ \( \), \ddd octal 1-3 digits, line continuations;
+  ## unknown escapes stand for the escaped character -- mirrors
+  ## lexer.rb handle_escape).
+  string = "(" 0*( escaped / string / !(%x28 / %x29 / %x5C) ANY ) ")"
+  escaped = "\\" ( 1*3(%x30-37) / ANY )
+
+  ## Hex string: <hexdigits, whitespace allowed> (guide: docs/syntax/strings.adoc).
+  hex_string = "<" 0*( hexdigit / ws ) ">"
+  hexdigit = %x30-39 / %x41-46 / %x61-66
+
+  ## ------------------------------------------------------------------
+  ## Names (guide: docs/syntax/operators.adoc, docs/syntax/tokens.adoc)
+  ## ------------------------------------------------------------------
+
+  ## Delimiters: ( ) < > [ ] { } / %  -- terminate names.
+  delimiter = %x28 / %x29 / %x3C / %x3E / %x5B / %x5D / %x7B / %x7D / %x2F / %x25
+
+  ## Any byte that is neither a delimiter nor whitespace.
+  name_char = !( delimiter / ws ) ANY
+
+  ## Executable name: any run of non-delimiter, non-whitespace bytes.
+  name = 1*name_char
+
+  ## Literal name: "/" prefix (guide: docs/syntax/operators.adoc).
+  literal_name = "/" name
+
+  ## ------------------------------------------------------------------
+  ## Composites
+  ## ------------------------------------------------------------------
+
+  ## Array: "[ objects ]" (guide: docs/syntax/arrays.adoc).
+  array = "[" 0*( ws / comment / object ) "]"
+
+  ## Procedure: "{ objects }" -- executable array; PEG recursion covers
+  ## nesting (guide: docs/syntax/procedures.adoc).
+  procedure = "{" 0*( ws / comment / object ) "}"
+
+  ## Dictionary: "<< objects >>" (guide: docs/syntax/dictionaries.adoc).
+  ## Keys and values are objects; pairing is semantic (the interpreter
+  ## stack), not syntactic.
+  dictionary = "<<" 0*( ws / comment / object ) ">>"
+
+  ## ------------------------------------------------------------------
+  ## Operator vocabulary
+  ## ------------------------------------------------------------------
+  ## Operators are executable names -- the vocabulary is REGISTRY
+  ## metadata (Model::Operators), gated per Level 1/2/3 by profile
+  ## validation after parsing (design decision: claricle/postscript#4).
+  ## The guide's docs/commands/** categories enumerate the vocabulary.
+
+  ## ------------------------------------------------------------------
+  ## Smoke tests (full-input consumption enforced by the entry rule)
+  ## ------------------------------------------------------------------
+  entry main: program
+
+  test main {
+    accept "10 20 moveto (hi) show"
+    accept "(nested (deep (deeper)) here) print"
+    accept "/proc { 1 2 add } bind def"
+    accept "[1 2 (three) /Four [5 6]] aload"
+    accept "<</PageSize[612 792]>> setpagedevice"
+    accept "<4f 4b> print"
+    accept "16#FF setgray"
+    accept "-.002 6.02E23 scale"
+    accept "%%BeginSetup"
+    accept "123abc print"
+    reject "{ unclosed"
+    reject "(unterminated"
+    reject "<hex"
+    reject "[1 2"
+    # Each token is captured under its rule's name (the first capture
+    # of each name is checked).
+    capture "10 20 moveto" { integer: "10" name: "moveto" }
+    capture "-.002 6.02E23 scale" { real: "-.002" }
+    capture "16#FF setgray" { radix: "16#FF" }
+    capture "123abc print" { name: "123abc" }
+    capture "(a (b) c) show" { string: "(a (b) c)" }
+    capture "<4f 4b> print" { hex_string: "<4f 4b>" }
+    capture "/proc { 1 2 add } def" { literal_name: "/proc" }
+    capture "%%BeginSetup\n1 pop" { dsc: "%%BeginSetup" }
+  }
+}
