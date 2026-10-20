@@ -3,8 +3,6 @@
 require "postscript"
 
 RSpec.describe Postscript::Model::Operators do
-  before(:all) { described_class.load_all! }
-
   describe "registry" do
     it "registers moveto, lineto, stroke, etc." do
       %w[moveto lineto curveto closepath stroke fill setrgbcolor setgray

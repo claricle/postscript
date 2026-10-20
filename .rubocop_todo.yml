@@ -233,12 +233,6 @@ Performance/DeletePrefix:
   Exclude:
     - 'lib/postscript/source/ast_builder.rb'
 
-# Offense count: 2
-RSpec/BeforeAfterAll:
-  Exclude:
-    - 'spec/postscript/model/operator_spec.rb'
-    - 'spec/postscript/model/operators_spec.rb'
-
 # Offense count: 28
 # This cop supports unsafe autocorrection (--autocorrect-all).
 # Configuration parameters: SkipBlocks, EnforcedStyle, OnlyStaticConstants.

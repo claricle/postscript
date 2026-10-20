@@ -3,8 +3,6 @@
 require "spec_helper"
 
 RSpec.describe Postscript::Model::Operators::Painting do
-  before(:all) { Postscript::Model::Operators.load_all! }
-
   %i[Stroke Fill Eofill Clip Eoclip].each do |op|
     describe "::#{op}" do
       it "is zero-arity (consumes nothing, produces nothing)" do

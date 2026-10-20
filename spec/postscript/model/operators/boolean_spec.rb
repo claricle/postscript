@@ -3,8 +3,6 @@
 require "spec_helper"
 
 RSpec.describe Postscript::Model::Operators::Boolean do
-  before(:all) { Postscript::Model::Operators.load_all! }
-
   let(:stack) { Postscript::Source::OperandStack.new }
 
   describe "::True" do
@@ -36,8 +34,8 @@ RSpec.describe Postscript::Model::Operators::Boolean do
       stack.push(true)
       stack.push(false)
       op = described_class::And.from_operands(stack)
-      expect(op.operand_a).to eq(true)
-      expect(op.operand_b).to eq(false)
+      expect(op.operand_a).to be(true)
+      expect(op.operand_b).to be(false)
     end
   end
 
@@ -45,7 +43,7 @@ RSpec.describe Postscript::Model::Operators::Boolean do
     it "is unary" do
       stack.push(true)
       op = described_class::Not.from_operands(stack)
-      expect(op.operand).to eq(true)
+      expect(op.operand).to be(true)
       expect(described_class::Not.consumes).to eq(1)
     end
   end

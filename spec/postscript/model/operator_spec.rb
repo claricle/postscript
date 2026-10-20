@@ -3,8 +3,6 @@
 require "spec_helper"
 
 RSpec.describe Postscript::Model::Operator do
-  before(:all) { Postscript::Model::Operators.load_all! }
-
   describe "consumes / produces" do
     it "Font::Findfont has consumes=1, produces=1" do
       f = Postscript::Model::Operators::Font::Findfont
