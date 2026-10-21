@@ -84,6 +84,9 @@ module Postscript
       def visit_name = "invoke_procedure"
 
       def keyword = name.to_s
+
+      # User-defined procedures have no language level.
+      def language_level = nil
     end
   end
 end

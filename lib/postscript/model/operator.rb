@@ -22,13 +22,19 @@ module Postscript
         # Called at the bottom of each subclass definition.
         def register_as(keyword, consumes: 0, produces: 0)
           Operators.register(keyword, self)
+          @registered_keyword = keyword
           define_method(:keyword) { keyword }
           define_method(:visit_name) { keyword }
           @consumes = consumes
           @produces = produces
         end
 
-        attr_reader :consumes, :produces
+        attr_reader :consumes, :produces, :registered_keyword
+
+        # Language level from the vocabulary, or nil if unregistered.
+        def language_level
+          registered_keyword && Vocabulary.level(registered_keyword)
+        end
 
         # Default: a no-op factory that pops nothing. Subclasses
         # override to consume operands off the parse stack.
@@ -42,6 +48,11 @@ module Postscript
       end
 
       def operator? = true
+
+      # Language level from the vocabulary for this operator's keyword.
+      def language_level
+        Vocabulary.level(keyword)
+      end
     end
 
     # Sentinel value the parser pushes onto the operand stack when an
