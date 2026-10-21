@@ -4,3 +4,5 @@
 * link:/commands/references/abs/[`abs`] - Repeated link.
 * link:/commands/references/show/[`show`] - Display a string.
 * link:/commands/references/nosuchop/[`nosuchop`] - Missing reference.
+* link:/commands/references/psindex/[`index`] - Copy a stack element.
+* link:/commands/references/brackets/[Array Brackets] - Array syntax.

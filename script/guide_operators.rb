@@ -19,16 +19,44 @@ module GuideOperators
            This\ is\ a\ Level\ (\d+)\ operator|
            (?i:Level\ (\d+)\ Only)/x
 
+  # Pages that do not document a single operator name are listed here.
+  EXCLUDED = {
+    "brackets" => "documents the [ ] array syntax; " \
+                  "the grammar reads [ and ] as delimiters",
+  }.freeze
+
   module_function
 
   def extract(guide_dir)
     commands = File.join(guide_dir, "docs", "commands")
     categories = category_links(commands)
-    Dir.glob(File.join(commands, "references", "*.adoc")).to_h do |path|
-      name = File.basename(path, ".adoc")
-      [name, { "categories" => categories.fetch(name, []).uniq.sort,
-               "level" => level(path) }]
-    end.except("index").sort.to_h
+    reference_pages(commands).each_with_object({}) do |(slug, path), operators|
+      operators[title(path)] = {
+        "categories" => categories.fetch(slug, []).uniq.sort,
+        "level" => level(path),
+      }
+    end.sort.to_h
+  end
+
+  def reference_pages(commands)
+    paths = Dir.glob(File.join(commands, "references", "*.adoc"))
+    paths.each_with_object({}) do |path, pages|
+      slug = File.basename(path, ".adoc")
+      next if slug == "index" || EXCLUDED.key?(slug)
+
+      pages[slug] = path
+    end
+  end
+
+  def title(path)
+    front_matter = File.read(path).match(/\A---\r?\n(.*?)^---\r?$/m)
+    raise "Missing front matter in #{path}" unless front_matter
+
+    metadata = YAML.safe_load(front_matter[1])
+    name = metadata["title"] if metadata.is_a?(Hash)
+    raise "Missing or non-string title in #{path}" unless name.is_a?(String)
+
+    name
   end
 
   def level(path)

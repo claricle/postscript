@@ -9,6 +9,7 @@ RSpec.describe GuideOperators do
   let(:expected) do
     {
       "abs" => { "categories" => %w[arithmetic-math font-text], "level" => 1 },
+      "index" => { "categories" => ["arithmetic-math"], "level" => 1 },
       "setcolor" => { "categories" => [], "level" => 2 },
       "show" => { "categories" => %w[arithmetic-math font-text],
                   "level" => nil },
@@ -26,6 +27,9 @@ RSpec.describe GuideOperators do
 
     expect(operators).to eq(expected)
     expect(operators.keys).to eq(operators.keys.sort)
+    expect(operators).to have_key("index")
+    expect(operators).not_to have_key("psindex")
+    expect(operators).not_to have_key("brackets")
   end
 
   it "writes the header and sorted operator metadata as YAML" do
@@ -55,12 +59,26 @@ RSpec.describe GuideOperators do
       Dir.mktmpdir do |dir|
         references = File.join(dir, "docs", "commands", "references")
         FileUtils.mkdir_p(references)
-        File.write(File.join(references, "test.adoc"),
-                   "= test\n#{statement}\nThis is a Level 1 operator.\n")
+        content = "---\nlayout: default\ntitle: test\n---\n" \
+                  "= test\n#{statement}\nThis is a Level 1 operator.\n"
+        File.write(File.join(references, "test.adoc"), content)
 
         expect(described_class.extract(dir)).to eq(
           "test" => { "categories" => [], "level" => 2 },
         )
+      end
+    end
+  end
+
+  ["= test\n", "---\nlayout: default\n---\n= test\n"].each do |content|
+    it "rejects a reference without a front-matter title: #{content.inspect}" do
+      Dir.mktmpdir do |dir|
+        references = File.join(dir, "docs", "commands", "references")
+        FileUtils.mkdir_p(references)
+        File.write(File.join(references, "test.adoc"), content)
+
+        expect { described_class.extract(dir) }
+          .to raise_error(RuntimeError, /test\.adoc/)
       end
     end
   end

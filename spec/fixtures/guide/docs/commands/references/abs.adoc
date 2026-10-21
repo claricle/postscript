@@ -1,3 +1,7 @@
+---
+layout: default
+title: abs
+---
 = abs
 
 This is a Level 1 operator, available in all PostScript implementations.

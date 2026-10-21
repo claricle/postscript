@@ -1,0 +1,7 @@
+---
+layout: default
+title: "`[` ... `]` (Array Brackets)"
+---
+= Array Brackets
+
+*Level 1* and later
