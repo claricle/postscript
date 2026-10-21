@@ -1,0 +1,205 @@
+= PostScript operator inventory
+
+This page is generated; do not edit. Regenerate with `bundle exec rake vocabulary:doc`. It is built from `data/guide_operators.yml` (PostScript Language Guide) and `data/operator_overrides.yml`, and lists each operator with the gem class that models it or `UnknownOperator` when no class is registered (the parser then yields `Postscript::Model::UnknownOperator`).
+
+[cols="2,3,1,1,5",options="header"]
+|===
+|Operator |Categories |Level |Source |Gem class
+
+|`+abs+` |arithmetic-math |1 |guide |`Postscript::Model::Operators::Arithmetic::Abs`
+|`+add+` |arithmetic-math |1 |guide |`Postscript::Model::Operators::Arithmetic::Add`
+|`+aload+` |array-string |1 |guide |`UnknownOperator`
+|`+anchorsearch+` |array-string |1 |guide |`Postscript::Model::Operators::Container::Anchorsearch`
+|`+and+` |relational-boolean |1 |override |`Postscript::Model::Operators::Boolean::And`
+|`+arc+` |path-construction |1 |guide |`Postscript::Model::Operators::Path::Arc`
+|`+arcn+` |path-construction |1 |guide |`Postscript::Model::Operators::Path::Arcn`
+|`+arct+` |path-construction |2 |guide |`UnknownOperator`
+|`+arcto+` |path-construction |1 |guide |`UnknownOperator`
+|`+array+` |array-string |1 |guide |`UnknownOperator`
+|`+ashow+` |font-text |1 |override |`UnknownOperator`
+|`+astore+` |array-string |1 |guide |`Postscript::Model::Operators::Container::Astore`
+|`+atan+` |arithmetic-math |1 |guide |`Postscript::Model::Operators::Arithmetic::Atan`
+|`+awidthshow+` |font-text |1 |override |`UnknownOperator`
+|`+begin+` |dictionary, graphics-state |1 |guide |`Postscript::Model::Operators::Dictionary::Begin`
+|`+bitshift+` |arithmetic-math |1 |guide |`Postscript::Model::Operators::Boolean::Bitshift`
+|`+ceiling+` |arithmetic-math |1 |guide |`Postscript::Model::Operators::Arithmetic::Ceiling`
+|`+charpath+` |font-text |1 |override |`Postscript::Model::Operators::Font::Charpath`
+|`+clear+` |stack-manipulation |1 |guide |`Postscript::Model::Operators::Stack::Clear`
+|`+cleartomark+` |stack-manipulation |1 |guide |`UnknownOperator`
+|`+clip+` |painting |1 |guide |`Postscript::Model::Operators::Painting::Clip`
+|`+clippath+` |painting |1 |guide |`UnknownOperator`
+|`+closepath+` |path-construction |1 |guide |`Postscript::Model::Operators::Path::Closepath`
+|`+concat+` |transformations |1 |guide |`Postscript::Model::Operators::Transformations::Concat`
+|`+concatmatrix+` |transformations |1 |guide |`UnknownOperator`
+|`+copy+` |stack-manipulation |1 |guide |`UnknownOperator`
+|`+copypage+` |device-output |1 |override |`Postscript::Model::Operators::Device::Copypage`
+|`+cos+` |arithmetic-math |1 |guide |`Postscript::Model::Operators::Arithmetic::Cos`
+|`+count+` |stack-manipulation |1 |guide |`Postscript::Model::Operators::Stack::Count`
+|`+countdictstack+` |dictionary |1 |guide |`Postscript::Model::Operators::Dictionary::Countdictstack`
+|`+counttomark+` |stack-manipulation |1 |guide |`UnknownOperator`
+|`+cshow+` |font-text |2 |guide |`UnknownOperator`
+|`+currentcmykcolor+` |graphics-state |2 |guide |`UnknownOperator`
+|`+currentdash+` |graphics-state |1 |guide |`UnknownOperator`
+|`+currentdict+` |dictionary |1 |guide |`Postscript::Model::Operators::Dictionary::Currentdict`
+|`+currentfont+` |font-text |1 |override |`UnknownOperator`
+|`+currentglobal+` |- |2 |override |`UnknownOperator`
+|`+currentgray+` |graphics-state |1 |guide |`UnknownOperator`
+|`+currentgstate+` |graphics-state |2 |guide |`UnknownOperator`
+|`+currenthsbcolor+` |graphics-state |1 |guide |`UnknownOperator`
+|`+currentlinecap+` |graphics-state |1 |guide |`UnknownOperator`
+|`+currentlinejoin+` |graphics-state |1 |guide |`UnknownOperator`
+|`+currentlinewidth+` |graphics-state |1 |guide |`UnknownOperator`
+|`+currentmatrix+` |transformations |1 |guide |`Postscript::Model::Operators::Transformations::Currentmatrix`
+|`+currentmiterlimit+` |graphics-state |1 |guide |`UnknownOperator`
+|`+currentpagedevice+` |device-output |2 |override |`UnknownOperator`
+|`+currentpoint+` |path-construction |1 |guide |`Postscript::Model::Operators::Path::Currentpoint`
+|`+currentrgbcolor+` |graphics-state |1 |guide |`UnknownOperator`
+|`+curveto+` |path-construction |1 |guide |`Postscript::Model::Operators::Path::Curveto`
+|`+cvi+` |array-string |1 |guide |`UnknownOperator`
+|`+cvlit+` |array-string |1 |guide |`UnknownOperator`
+|`+cvn+` |array-string |1 |guide |`UnknownOperator`
+|`+cvr+` |array-string |1 |guide |`UnknownOperator`
+|`+cvs+` |array-string |1 |guide |`Postscript::Model::Operators::Container::Cvs`
+|`+cvx+` |array-string, control-flow |1 |guide |`UnknownOperator`
+|`+def+` |dictionary |1 |guide |`Postscript::Model::Operators::Dictionary::Def`
+|`+defaultmatrix+` |transformations |1 |guide |`UnknownOperator`
+|`+definefont+` |font-text |1 |override |`UnknownOperator`
+|`+dict+` |dictionary |1 |guide |`Postscript::Model::Operators::Dictionary::Dict`
+|`+dictstack+` |dictionary |1 |guide |`Postscript::Model::Operators::Dictionary::Dictstack`
+|`+div+` |arithmetic-math |1 |guide |`Postscript::Model::Operators::Arithmetic::Div`
+|`+dtransform+` |transformations |1 |guide |`Postscript::Model::Operators::Transformations::Dtransform`
+|`+dup+` |stack-manipulation |1 |guide |`Postscript::Model::Operators::Stack::Dup`
+|`+end+` |dictionary |1 |guide |`Postscript::Model::Operators::Dictionary::End`
+|`+eoclip+` |painting |1 |guide |`Postscript::Model::Operators::Painting::Eoclip`
+|`+eofill+` |painting |1 |guide |`Postscript::Model::Operators::Painting::Eofill`
+|`+eq+` |relational-boolean |1 |override |`Postscript::Model::Operators::Boolean::Eq`
+|`+exch+` |stack-manipulation |1 |guide |`Postscript::Model::Operators::Stack::Exch`
+|`+exec+` |control-flow |1 |guide |`Postscript::Model::Operators::ControlFlow::Exec`
+|`+exit+` |control-flow |1 |guide |`Postscript::Model::Operators::ControlFlow::Exit`
+|`+exp+` |arithmetic-math |1 |guide |`Postscript::Model::Operators::Arithmetic::Exp`
+|`+false+` |relational-boolean |1 |override |`Postscript::Model::Operators::Boolean::False`
+|`+fill+` |painting |1 |guide |`Postscript::Model::Operators::Painting::Fill`
+|`+filter+` |file-io |2 |override |`UnknownOperator`
+|`+findfont+` |font-text |1 |override |`Postscript::Model::Operators::Font::Findfont`
+|`+floor+` |arithmetic-math |1 |guide |`Postscript::Model::Operators::Arithmetic::Floor`
+|`+for+` |control-flow |1 |guide |`Postscript::Model::Operators::ControlFlow::For`
+|`+forall+` |array-string, control-flow, dictionary |1 |guide |`Postscript::Model::Operators::Container::Forall`
+|`+ge+` |relational-boolean |1 |override |`Postscript::Model::Operators::Boolean::Ge`
+|`+get+` |array-string, dictionary |1 |guide |`Postscript::Model::Operators::Container::Get`
+|`+getinterval+` |array-string |1 |guide |`Postscript::Model::Operators::Container::Getinterval`
+|`+grestore+` |graphics-state, transformations |1 |guide |`Postscript::Model::Operators::GraphicsState::Grestore`
+|`+grestoreall+` |graphics-state |1 |guide |`Postscript::Model::Operators::GraphicsState::Grestoreall`
+|`+gsave+` |graphics-state, transformations |1 |guide |`Postscript::Model::Operators::GraphicsState::Gsave`
+|`+gstate+` |graphics-state |2 |guide |`UnknownOperator`
+|`+gt+` |relational-boolean |1 |override |`Postscript::Model::Operators::Boolean::Gt`
+|`+identmatrix+` |transformations |1 |guide |`UnknownOperator`
+|`+idiv+` |arithmetic-math |1 |guide |`Postscript::Model::Operators::Arithmetic::Idiv`
+|`+idtransform+` |transformations |1 |guide |`Postscript::Model::Operators::Transformations::Idtransform`
+|`+if+` |control-flow |1 |guide |`Postscript::Model::Operators::ControlFlow::If`
+|`+ifelse+` |control-flow |1 |guide |`Postscript::Model::Operators::ControlFlow::Ifelse`
+|`+index+` |stack-manipulation |1 |guide |`Postscript::Model::Operators::Stack::Index`
+|`+initmatrix+` |transformations |1 |guide |`UnknownOperator`
+|`+invertmatrix+` |transformations |1 |guide |`UnknownOperator`
+|`+itransform+` |transformations |1 |guide |`Postscript::Model::Operators::Transformations::Itransform`
+|`+known+` |dictionary |1 |guide |`Postscript::Model::Operators::Dictionary::Known`
+|`+kshow+` |font-text |1 |override |`UnknownOperator`
+|`+le+` |relational-boolean |1 |override |`Postscript::Model::Operators::Boolean::Le`
+|`+length+` |array-string, dictionary |1 |guide |`Postscript::Model::Operators::Container::Length`
+|`+lineto+` |path-construction |1 |guide |`Postscript::Model::Operators::Path::Lineto`
+|`+ln+` |arithmetic-math |1 |guide |`Postscript::Model::Operators::Arithmetic::Ln`
+|`+load+` |dictionary |1 |guide |`Postscript::Model::Operators::Dictionary::Load`
+|`+log+` |arithmetic-math |1 |guide |`Postscript::Model::Operators::Arithmetic::Log`
+|`+loop+` |control-flow |1 |guide |`Postscript::Model::Operators::ControlFlow::Loop`
+|`+lt+` |relational-boolean |1 |override |`Postscript::Model::Operators::Boolean::Lt`
+|`+makefont+` |font-text |1 |override |`UnknownOperator`
+|`+makepattern+` |color |2 |override |`UnknownOperator`
+|`+mark+` |stack-manipulation |1 |guide |`UnknownOperator`
+|`+matrix+` |transformations |1 |guide |`Postscript::Model::Operators::Transformations::Matrix`
+|`+maxlength+` |dictionary |1 |guide |`Postscript::Model::Operators::Dictionary::Maxlength`
+|`+mod+` |arithmetic-math |1 |guide |`Postscript::Model::Operators::Arithmetic::Mod`
+|`+moveto+` |path-construction |1 |guide |`Postscript::Model::Operators::Path::Moveto`
+|`+mul+` |arithmetic-math |1 |guide |`Postscript::Model::Operators::Arithmetic::Mul`
+|`+ne+` |relational-boolean |1 |override |`Postscript::Model::Operators::Boolean::Ne`
+|`+neg+` |arithmetic-math |1 |guide |`Postscript::Model::Operators::Arithmetic::Neg`
+|`+newpath+` |path-construction |1 |guide |`Postscript::Model::Operators::Path::Newpath`
+|`+not+` |relational-boolean |1 |override |`Postscript::Model::Operators::Boolean::Not`
+|`+nulldevice+` |device-output |1 |override |`Postscript::Model::Operators::Device::Nulldevice`
+|`+or+` |relational-boolean |1 |override |`Postscript::Model::Operators::Boolean::Or`
+|`+packedarray+` |array-string |2 |guide |`UnknownOperator`
+|`+pop+` |stack-manipulation |1 |guide |`Postscript::Model::Operators::Stack::Pop`
+|`+put+` |array-string, dictionary |1 |guide |`Postscript::Model::Operators::Container::Put`
+|`+putinterval+` |array-string |1 |guide |`Postscript::Model::Operators::Container::Putinterval`
+|`+quit+` |control-flow |1 |guide |`Postscript::Model::Operators::ControlFlow::Quit`
+|`+rand+` |arithmetic-math |1 |guide |`UnknownOperator`
+|`+rcheck+` |array-string |1 |guide |`UnknownOperator`
+|`+rcurveto+` |path-construction |1 |guide |`Postscript::Model::Operators::Path::Rcurveto`
+|`+rectclip+` |painting |2 |guide |`UnknownOperator`
+|`+rectfill+` |painting |2 |guide |`UnknownOperator`
+|`+rectstroke+` |painting |2 |guide |`UnknownOperator`
+|`+repeat+` |control-flow |1 |guide |`Postscript::Model::Operators::ControlFlow::Repeat`
+|`+rlineto+` |path-construction |1 |guide |`Postscript::Model::Operators::Path::Rlineto`
+|`+rmoveto+` |path-construction |1 |guide |`Postscript::Model::Operators::Path::Rmoveto`
+|`+roll+` |stack-manipulation |1 |guide |`Postscript::Model::Operators::Stack::Roll`
+|`+rotate+` |transformations |1 |guide |`Postscript::Model::Operators::Transformations::Rotate`
+|`+round+` |arithmetic-math |1 |guide |`Postscript::Model::Operators::Arithmetic::Round`
+|`+rrand+` |arithmetic-math |1 |guide |`UnknownOperator`
+|`+scale+` |transformations |1 |guide |`Postscript::Model::Operators::Transformations::Scale`
+|`+scalefont+` |font-text |1 |override |`Postscript::Model::Operators::Font::Scalefont`
+|`+search+` |array-string |1 |guide |`Postscript::Model::Operators::Container::Search`
+|`+setblackgeneration+` |color |2 |override |`UnknownOperator`
+|`+setcmykcolor+` |graphics-state |2 |guide |`Postscript::Model::Operators::Color::Setcmykcolor`
+|`+setcolor+` |color |2 |override |`UnknownOperator`
+|`+setcolorspace+` |color |2 |override |`UnknownOperator`
+|`+setdash+` |graphics-state |1 |guide |`Postscript::Model::Operators::GraphicsState::Setdash`
+|`+setfont+` |font-text |1 |override |`Postscript::Model::Operators::Font::Setfont`
+|`+setglobal+` |- |2 |override |`UnknownOperator`
+|`+setgray+` |graphics-state |1 |guide |`Postscript::Model::Operators::Color::Setgray`
+|`+setgstate+` |graphics-state |2 |guide |`UnknownOperator`
+|`+sethalftone+` |graphics-state |2 |override |`UnknownOperator`
+|`+sethsbcolor+` |graphics-state |1 |guide |`Postscript::Model::Operators::Color::Sethsbcolor`
+|`+setlinecap+` |graphics-state |1 |guide |`Postscript::Model::Operators::GraphicsState::Setlinecap`
+|`+setlinejoin+` |graphics-state |1 |guide |`Postscript::Model::Operators::GraphicsState::Setlinejoin`
+|`+setlinewidth+` |graphics-state |1 |guide |`Postscript::Model::Operators::GraphicsState::Setlinewidth`
+|`+setmatrix+` |transformations |1 |guide |`Postscript::Model::Operators::Transformations::Setmatrix`
+|`+setmiterlimit+` |graphics-state |1 |guide |`Postscript::Model::Operators::GraphicsState::Setmiterlimit`
+|`+setpacking+` |array-string |2 |override |`UnknownOperator`
+|`+setpagedevice+` |device-output |2 |override |`UnknownOperator`
+|`+setpattern+` |color |2 |override |`UnknownOperator`
+|`+setrgbcolor+` |graphics-state |1 |guide |`Postscript::Model::Operators::Color::Setrgbcolor`
+|`+setsmoothness+` |graphics-state |3 |override |`UnknownOperator`
+|`+setundercolorremoval+` |color |2 |override |`UnknownOperator`
+|`+shfill+` |painting |3 |override |`UnknownOperator`
+|`+show+` |font-text |1 |override |`Postscript::Model::Operators::Font::Show`
+|`+showpage+` |device-output |1 |override |`Postscript::Model::Operators::Device::Showpage`
+|`+sin+` |arithmetic-math |1 |guide |`Postscript::Model::Operators::Arithmetic::Sin`
+|`+sqrt+` |arithmetic-math |1 |guide |`Postscript::Model::Operators::Arithmetic::Sqrt`
+|`+srand+` |arithmetic-math |1 |guide |`UnknownOperator`
+|`+stop+` |control-flow |1 |guide |`UnknownOperator`
+|`+stopped+` |control-flow |1 |guide |`Postscript::Model::Operators::ControlFlow::Stopped`
+|`+store+` |dictionary |1 |guide |`Postscript::Model::Operators::Dictionary::Store`
+|`+string+` |array-string |1 |guide |`Postscript::Model::Operators::Container::String`
+|`+stringwidth+` |font-text |1 |override |`Postscript::Model::Operators::Font::Stringwidth`
+|`+stroke+` |painting |1 |guide |`Postscript::Model::Operators::Painting::Stroke`
+|`+strokepath+` |painting |1 |guide |`UnknownOperator`
+|`+sub+` |arithmetic-math |1 |guide |`Postscript::Model::Operators::Arithmetic::Sub`
+|`+token+` |array-string |1 |guide |`Postscript::Model::Operators::Container::Token`
+|`+transform+` |transformations |1 |guide |`Postscript::Model::Operators::Transformations::Transform`
+|`+translate+` |transformations |1 |guide |`Postscript::Model::Operators::Transformations::Translate`
+|`+true+` |relational-boolean |1 |override |`Postscript::Model::Operators::Boolean::True`
+|`+truncate+` |arithmetic-math |1 |guide |`Postscript::Model::Operators::Arithmetic::Truncate`
+|`+type+` |array-string |1 |guide |`UnknownOperator`
+|`+ueofill+` |painting |2 |guide |`UnknownOperator`
+|`+ufill+` |painting |2 |guide |`UnknownOperator`
+|`+undef+` |dictionary |2 |guide |`UnknownOperator`
+|`+undefinefont+` |font-text |2 |guide |`UnknownOperator`
+|`+ustroke+` |painting |2 |guide |`UnknownOperator`
+|`+ustrokepath+` |painting |2 |guide |`UnknownOperator`
+|`+wcheck+` |array-string |1 |guide |`UnknownOperator`
+|`+where+` |dictionary |1 |guide |`UnknownOperator`
+|`+widthshow+` |font-text |1 |override |`UnknownOperator`
+|`+xcheck+` |array-string |1 |guide |`UnknownOperator`
+|`+xor+` |relational-boolean |1 |override |`Postscript::Model::Operators::Boolean::Xor`
+|`+xyshow+` |font-text |2 |override |`Postscript::Model::Operators::Font::Xyshow`
+|===
+
+194 operators; 120 with a gem class; 74 represented as UnknownOperator. By level: level 1: 161, level 2: 31, level 3: 2.
