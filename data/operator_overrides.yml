@@ -1,0 +1,167 @@
+# Levels and categories the Guide does not give. Every entry has a reason.
+operators:
+  and:
+    categories: [relational-boolean]
+    level: 1
+    reason: "No Guide page and no Guide category for relational/boolean operators; PLRM 3rd ed.: LanguageLevel 1"
+  ashow:
+    level: 1
+    reason: "Guide page states no level; PLRM 3rd ed.: LanguageLevel 1"
+  awidthshow:
+    level: 1
+    reason: "Guide page states no level; PLRM 3rd ed.: LanguageLevel 1"
+  charpath:
+    level: 1
+    reason: "Guide page states no level; PLRM 3rd ed.: LanguageLevel 1"
+  copypage:
+    categories: [device-output]
+    level: 1
+    reason: "No Guide page; PLRM 3rd ed.: LanguageLevel 1"
+  currentfont:
+    level: 1
+    reason: "Guide page states no level; PLRM 3rd ed.: LanguageLevel 1"
+  currentglobal:
+    level: 2
+    reason: "Named only on level-2.adoc; no Guide category for VM operators; PLRM 3rd ed.: LanguageLevel 2"
+  currentpagedevice:
+    categories: [device-output]
+    level: 2
+    reason: "Named only on level-2.adoc; PLRM 3rd ed.: LanguageLevel 2"
+  definefont:
+    level: 1
+    reason: "Guide page states no level; PLRM 3rd ed.: LanguageLevel 1"
+  eq:
+    categories: [relational-boolean]
+    level: 1
+    reason: "No Guide page and no Guide category for relational/boolean operators; PLRM 3rd ed.: LanguageLevel 1"
+  "false":
+    categories: [relational-boolean]
+    level: 1
+    reason: "No Guide page and no Guide category for relational/boolean operators; PLRM 3rd ed.: LanguageLevel 1"
+  filter:
+    categories: [file-io]
+    level: 2
+    reason: "Named only on level-2.adoc; PLRM 3rd ed.: LanguageLevel 2"
+  findfont:
+    level: 1
+    reason: "Guide page states no level; PLRM 3rd ed.: LanguageLevel 1"
+  ge:
+    categories: [relational-boolean]
+    level: 1
+    reason: "No Guide page and no Guide category for relational/boolean operators; PLRM 3rd ed.: LanguageLevel 1"
+  gt:
+    categories: [relational-boolean]
+    level: 1
+    reason: "No Guide page and no Guide category for relational/boolean operators; PLRM 3rd ed.: LanguageLevel 1"
+  index:
+    categories: [stack-manipulation]
+    level: 1
+    reason: "No Guide page; PLRM 3rd ed.: LanguageLevel 1"
+  kshow:
+    level: 1
+    reason: "Guide page states no level; PLRM 3rd ed.: LanguageLevel 1"
+  le:
+    categories: [relational-boolean]
+    level: 1
+    reason: "No Guide page and no Guide category for relational/boolean operators; PLRM 3rd ed.: LanguageLevel 1"
+  lt:
+    categories: [relational-boolean]
+    level: 1
+    reason: "No Guide page and no Guide category for relational/boolean operators; PLRM 3rd ed.: LanguageLevel 1"
+  makefont:
+    level: 1
+    reason: "Guide page states no level; PLRM 3rd ed.: LanguageLevel 1"
+  makepattern:
+    categories: [color]
+    level: 2
+    reason: "Named only on level-2.adoc; PLRM 3rd ed.: LanguageLevel 2"
+  ne:
+    categories: [relational-boolean]
+    level: 1
+    reason: "No Guide page and no Guide category for relational/boolean operators; PLRM 3rd ed.: LanguageLevel 1"
+  not:
+    categories: [relational-boolean]
+    level: 1
+    reason: "No Guide page and no Guide category for relational/boolean operators; PLRM 3rd ed.: LanguageLevel 1"
+  nulldevice:
+    categories: [device-output]
+    level: 1
+    reason: "No Guide page; PLRM 3rd ed.: LanguageLevel 1"
+  or:
+    categories: [relational-boolean]
+    level: 1
+    reason: "No Guide page and no Guide category for relational/boolean operators; PLRM 3rd ed.: LanguageLevel 1"
+  scalefont:
+    level: 1
+    reason: "Guide page states no level; PLRM 3rd ed.: LanguageLevel 1"
+  setblackgeneration:
+    categories: [color]
+    level: 2
+    reason: "Named only on level-3.adoc, which lists it; PLRM 3rd ed.: LanguageLevel 2 (Level 1 CMYK color extension)"
+  setcolor:
+    categories: [color]
+    level: 2
+    reason: "Named only on level-2.adoc; PLRM 3rd ed.: LanguageLevel 2"
+  setcolorspace:
+    categories: [color]
+    level: 2
+    reason: "Named only on level-2.adoc; PLRM 3rd ed.: LanguageLevel 2"
+  setfont:
+    level: 1
+    reason: "Guide page states no level; PLRM 3rd ed.: LanguageLevel 1"
+  setglobal:
+    level: 2
+    reason: "Named only on level-2.adoc; no Guide category for VM operators; PLRM 3rd ed.: LanguageLevel 2"
+  sethalftone:
+    categories: [graphics-state]
+    level: 2
+    reason: "Named only on level-3.adoc, which lists it; PLRM 3rd ed.: LanguageLevel 2"
+  setpacking:
+    categories: [array-string]
+    level: 2
+    reason: "Named only on level-2.adoc; PLRM 3rd ed.: LanguageLevel 2 (Level 1 version 25.0 extension)"
+  setpagedevice:
+    categories: [device-output]
+    level: 2
+    reason: "Named only on level-2.adoc; PLRM 3rd ed.: LanguageLevel 2"
+  setpattern:
+    categories: [color]
+    level: 2
+    reason: "Named only on level-2.adoc; PLRM 3rd ed.: LanguageLevel 2"
+  setsmoothness:
+    categories: [graphics-state]
+    level: 3
+    reason: "Named only on level-3.adoc; PLRM 3rd ed.: LanguageLevel 3"
+  setundercolorremoval:
+    categories: [color]
+    level: 2
+    reason: "Named only on level-3.adoc, which lists it; PLRM 3rd ed.: LanguageLevel 2 (Level 1 CMYK color extension)"
+  shfill:
+    categories: [painting]
+    level: 3
+    reason: "Named only on level-3.adoc; PLRM 3rd ed.: LanguageLevel 3"
+  show:
+    level: 1
+    reason: "Guide page states no level; PLRM 3rd ed.: LanguageLevel 1"
+  showpage:
+    categories: [device-output]
+    level: 1
+    reason: "No Guide page; PLRM 3rd ed.: LanguageLevel 1"
+  stringwidth:
+    level: 1
+    reason: "Guide page states no level; PLRM 3rd ed.: LanguageLevel 1"
+  "true":
+    categories: [relational-boolean]
+    level: 1
+    reason: "No Guide page and no Guide category for relational/boolean operators; PLRM 3rd ed.: LanguageLevel 1"
+  widthshow:
+    level: 1
+    reason: "Guide page states no level; PLRM 3rd ed.: LanguageLevel 1"
+  xor:
+    categories: [relational-boolean]
+    level: 1
+    reason: "No Guide page and no Guide category for relational/boolean operators; PLRM 3rd ed.: LanguageLevel 1"
+  xyshow:
+    categories: [font-text]
+    level: 2
+    reason: "No Guide page; PLRM 3rd ed.: LanguageLevel 2"
