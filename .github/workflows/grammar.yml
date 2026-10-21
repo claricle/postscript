@@ -16,3 +16,4 @@ jobs:
       # parsanol is not a dependency of this gem; only this check needs it.
       - run: gem install parsanol --no-document --version '>= 1.3.96'
       - run: ruby script/check_grammar.rb
+      - run: ruby script/check_guide_operators.rb
