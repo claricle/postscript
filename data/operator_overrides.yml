@@ -53,10 +53,6 @@ operators:
     categories: [relational-boolean]
     level: 1
     reason: "No Guide page and no Guide category for relational/boolean operators; PLRM 3rd ed.: LanguageLevel 1"
-  index:
-    categories: [stack-manipulation]
-    level: 1
-    reason: "No Guide page; PLRM 3rd ed.: LanguageLevel 1"
   kshow:
     level: 1
     reason: "Guide page states no level; PLRM 3rd ed.: LanguageLevel 1"

@@ -14,8 +14,8 @@ RSpec.describe "data/operator_overrides.yml" do
     expect(data).to include("operators" => be_a(Hash))
   end
 
-  it "contains exactly 45 operators" do
-    expect(operators.size).to eq(45)
+  it "contains exactly 44 operators" do
+    expect(operators.size).to eq(44)
   end
 
   it "sorts operator names alphabetically" do
