@@ -22,12 +22,14 @@ module Postscript
   autoload :FormatNumber, "postscript/format_number"
   autoload :Matrix, "postscript/matrix"
   autoload :Color, "postscript/color"
+  autoload :LevelViolation, "postscript/level_violation"
 
   # PS source-reading layer
   autoload :Source, "postscript/source"
 
   # Typed PS domain model
   autoload :Model, "postscript/model"
+  autoload :Validation, "postscript/validation"
 
   # PS source serializer
   autoload :Serializer, "postscript/serializer"
