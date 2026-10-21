@@ -61,10 +61,11 @@ Each decision has a default. The default applies unless a human changes it here 
 
 From `claricle/postscript-guide@c45f337f0112acc6a771cdc101a663858d23ee12`:
 
-- **Pages.** `docs/commands/references/*.adoc` has 163 operator pages (excluding `index.adoc`).
-  - The category index pages `docs/commands/<category>/index.adoc` link each page as `commands/references/<name>/`.
+- **Pages.** `docs/commands/references/` has 164 pages (no `index.adoc`), which give 163 operators:
+  - An operator's name is the page's front-matter `title:`, not its file name. `psindex.adoc` documents `index`; it was renamed to avoid clashing with `index.adoc`.
+  - `brackets.adoc` documents the `[ ]` array syntax, which the grammar reads as delimiters, so it is excluded.
+  - The category index pages `docs/commands/<category>/index.adoc` link each page by file name, as `commands/references/<file>/`.
   - Six categories link no pages: color, device-output, error-handling, file-io, image, resource-management.
-  - One category link has no page (`psindex`); ignore it.
 - **Stated levels.** 150 pages state a level with one of these patterns:
   - `*Level N* and later`
   - `*Available in*: PostScript Level N and higher`
@@ -73,11 +74,11 @@ From `claricle/postscript-guide@c45f337f0112acc6a771cdc101a663858d23ee12`:
 
   That gives 133 at Level 1 and 17 at Level 2. No page says Level 3.
 - **Font pages without a level (13):** ashow, awidthshow, charpath, currentfont, definefont, findfont, kshow, makefont, scalefont, setfont, show, stringwidth, widthshow.
-- **Gem operators with no Guide page (17):** and, copypage, eq, false, ge, gt, index, le, lt, ne, not, nulldevice, or, showpage, true, xor, xyshow.
+- **Gem operators with no Guide page (16):** and, copypage, eq, false, ge, gt, le, lt, ne, not, nulldevice, or, showpage, true, xor, xyshow.
 - **Operators named on the level pages but with no reference page:**
   - `docs/levels/level-2.adoc`: setcolorspace, setcolor, setglobal, currentglobal, setpagedevice, setpacking, makepattern, setpattern, filter, currentpagedevice.
   - `docs/levels/level-3.adoc`: shfill, setsmoothness, setblackgeneration, setundercolorremoval, sethalftone.
-- **Registry overlap.** The gem registers 120 keywords; 103 of them have Guide pages.
+- **Registry overlap.** The gem registers 120 keywords; 104 of them have Guide pages.
 
 ## Data formats
 
@@ -148,7 +149,7 @@ Tasks in the same wave can run in parallel. Each wave needs the earlier waves' t
 - **needs:** I4-A1.
 - **files:** `data/guide_operators.yml`.
 
-Run the script on a Guide checkout at c45f337 and commit the output. The PR body states the counts: 163 operators, 150 with a level.
+Run the script on a Guide checkout at c45f337 and commit the output. The PR body states the counts: 163 operators (`index` included, `brackets` excluded), 150 with a level.
 
 **Spec:** the file loads, has 163 operators, and names commit c45f337.
 
@@ -170,16 +171,17 @@ The script clones the Guide at the pinned commit into a temporary directory and 
 
 Add one entry, with a level and a reason, for each operator in these lists under "Facts":
 - the 13 font pages without a level;
-- the 17 gem operators with no Guide page; give them `categories` too;
+- the 16 gem operators with no Guide page; give them `categories` too;
 - the 15 operators named on the level pages but with no reference page.
 
 Proposed levels, to be **checked against PLRM 3rd edition (D2) and corrected where wrong**:
-- Level 1: the 13 font operators, and, eq, false, ge, gt, index, le, lt, ne, not, or, true, xor, copypage, nulldevice, showpage, setblackgeneration, setundercolorremoval.
-- Level 2: xyshow, setcolorspace, setcolor, setglobal, currentglobal, setpagedevice, makepattern, setpattern, filter, currentpagedevice, sethalftone.
+- Level 1: the 13 font operators, and, eq, false, ge, gt, le, lt, ne, not, or, true, xor, copypage, nulldevice, showpage.
+- Level 2: xyshow, setcolorspace, setcolor, setglobal, currentglobal, setpagedevice, setpacking, makepattern, setpattern, filter, currentpagedevice, sethalftone, setblackgeneration, setundercolorremoval.
 - Level 3: shfill, setsmoothness.
-- setpacking: verify the level.
 
-**Spec:** the file loads; every entry has a level from 1 to 3 and a non-empty reason; and it has no operator twice.
+PLRM Appendix A.2 puts setblackgeneration, setundercolorremoval and setpacking at Level 2; `level-3.adoc` is wrong to list the first two and sethalftone.
+
+**Spec:** the file loads; it has 44 entries; every entry has a level from 1 to 3 and a non-empty reason; and it has no operator twice.
 
 ### I4-B1: Model::Vocabulary
 
@@ -301,7 +303,7 @@ Each issue gives the input, what the lexer does, what the Guide says (with a pag
 - **needs:** none. **A human approves** before the issues are opened.
 - **output:** issues in claricle/postscript-guide for:
   - the 13 pages without a level;
-  - the 17 operators without a page;
+  - the 16 operators without a page;
   - the 15 operators named on the level pages without a reference page;
   - `level-3.adoc` listing operators that are not Level 3 (per PLRM), if I4-A4 confirms that.
 
