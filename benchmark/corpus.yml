@@ -1,0 +1,39 @@
+repository: claricle/postsvg
+commit: b699673d1a98235e38ad81f828ea2906ef3ada1c
+files:
+  - path: spec/fixtures/eps2svg/img.eps
+    sha256: 8ad8889ca341a1b745519273d8bc6aae78dd0b483099ec5c174bfe292f39fae1
+  - path: spec/fixtures/ps2svg/colors.ps
+    sha256: 9d415d5c8fb24529b11861186d4ba69986210ba0453fe60be7d3dc3106bb4ad2
+  - path: spec/fixtures/ps2svg/example_full.ps
+    sha256: dc0f64d59acf954647f184b1d8b3c702677a5d070a3cfaab1784e5d4e442d893
+  - path: spec/fixtures/ps2svg/file.ps
+    sha256: 7380ca98f91d221f934f78c7084c0f5cdebdab33c9990cfefa4f565113f5a46f
+  - path: spec/fixtures/ps2svg/img.ps
+    sha256: 21089bb9afef48fe0ea80415fefbf8e013e4f7baac5cf361e74140b70599784d
+  - path: spec/fixtures/ps2svg/new_tests/01_paths.ps
+    sha256: 324a9bfb0bb1894c217fa591cfab78e2e3af5cd689e1e52b85d82f67740dc1a2
+  - path: spec/fixtures/ps2svg/new_tests/02_transforms.ps
+    sha256: 43abad0d332cf55a101d14285025ce95257ece2ce6e4d8421b98d03eb1a2c7d4
+  - path: spec/fixtures/ps2svg/new_tests/03_clipping.ps
+    sha256: d09361d69f16f6cb46153852092808ee4ded9f9b2ae7ede97fd1eb819bacc710
+  - path: spec/fixtures/ps2svg/new_tests/04_text_fonts.ps
+    sha256: 42d9a56c14fe00937e1de5ad11b1c14cc0c361a960ae19437a27132437fb50c8
+  - path: spec/fixtures/ps2svg/new_tests/05_images.ps
+    sha256: b066fd5856d98507694f10166a8e7f6e448206c720cb1fece57697812a153787
+  - path: spec/fixtures/ps2svg/new_tests/06_color_shading.ps
+    sha256: 5258d5701bd0ad2eb1b7423246f0ce24eeb5dcc24cd6a530e37e80cff958c0d7
+  - path: spec/fixtures/ps2svg/new_tests/07_patterns.ps
+    sha256: 1282f74796db95ca94295c2ccacd7042b5d62c0ec9531eba86e1c7e6ab116c4c
+  - path: spec/fixtures/ps2svg/new_tests/08_stroke_composite.ps
+    sha256: 3c65be582370746b8bea1f61762b32dbe631c6aa2853651aa250eb15138855f0
+  - path: spec/fixtures/ps2svg/new_tests/09_page_device.ps
+    sha256: ea09ec83cfa17c29f26be2dae62f692ab77a9b508b45d9e4c30e3e3fcfd211de
+  - path: spec/fixtures/ps2svg/new_tests/10_procedures_dicts.ps
+    sha256: 462f2a0531895ee5f7c9bbf37df10b2f667e7f051020ed60d2128d17a3d8e3a4
+  - path: spec/fixtures/ps2svg/new_tests/11_level2_level3.ps
+    sha256: d0552c8179f7d39436eddb5c303982e13259558c0913cbd59b5caa426b243dc1
+  - path: spec/fixtures/ps2svg/new_tests/12_full_feature_test.ps
+    sha256: a7131823a28ea40fb2dbd0490b83f325eec164c81960564551f06d7dd11f126a
+  - path: spec/fixtures/ps2svg/prog.ps
+    sha256: 6ed1991ec6244831a4e69d52cccba37c329b59039f9676e423b086a280d8ade1
