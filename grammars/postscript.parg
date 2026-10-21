@@ -17,15 +17,18 @@ grammar PostScript version "0.1.0" {
   ## (guide: docs/syntax/tokens.adoc, docs/syntax/objects.adoc)
   program = 0*( ws / dsc_comment as dsc / comment / object )
 
-  ## Whitespace: NUL HT LF FF CR SPACE (guide: docs/syntax/tokens.adoc).
-  ws = 1*( %x00 / %x09 / %x0A / %x0C / %x0D / %x20 )
+  ## Whitespace: NUL HT LF VT FF CR SPACE (guide: docs/syntax/tokens.adoc
+  ## lists NUL HT LF FF CR SPACE; VT is included to match the lexer).
+  ws = 1*( %x00 / %x09 / %x0A / %x0B / %x0C / %x0D / %x20 )
 
-  ## Comment: "%" to end of line (guide: docs/syntax/tokens.adoc).
-  comment = "%" 0*( !(%x0A / %x0D) ANY )
+  ## Comment: "%" to end of line (guide: docs/syntax/tokens.adoc). Only LF
+  ## ends it, as in the lexer; a lone CR is part of the comment.
+  comment = "%" 0*( !%x0A ANY )
 
   ## DSC comment: "%%" line -- captured distinctly by the lexer
   ## (document structuring conventions; passes through to the model).
-  dsc_comment = "%%" 0*( !(%x0A / %x0D) ANY )
+  ## Only LF ends it, as for comment.
+  dsc_comment = "%%" 0*( !%x0A ANY )
 
   ## Objects (guide: docs/syntax/objects.adoc). Every object is captured
   ## under the name of its rule.
@@ -85,24 +88,30 @@ grammar PostScript version "0.1.0" {
   ## Executable name: any run of non-delimiter, non-whitespace bytes.
   name = 1*name_char
 
-  ## Literal name: "/" prefix (guide: docs/syntax/operators.adoc).
-  literal_name = "/" name
+  ## Literal name: "/" prefix (guide: docs/syntax/operators.adoc). As in
+  ## the lexer, a leading backslash also starts one, and the name may be
+  ## empty: "//x" is an empty literal name followed by "/x".
+  literal_name = ( "/" / "\\" ) 0*name_char
 
   ## ------------------------------------------------------------------
   ## Composites
   ## ------------------------------------------------------------------
 
+  ## Composites capture their opening and closing delimiters (open,
+  ## close) and their contents (items), so each delimiter keeps its
+  ## position. DSC comments inside them are captured as at top level.
+
   ## Array: "[ objects ]" (guide: docs/syntax/arrays.adoc).
-  array = "[" 0*( ws / comment / object ) "]"
+  array = "[" as open 0*( ws / dsc_comment as dsc / comment / object ) as items "]" as close
 
   ## Procedure: "{ objects }" -- executable array; PEG recursion covers
   ## nesting (guide: docs/syntax/procedures.adoc).
-  procedure = "{" 0*( ws / comment / object ) "}"
+  procedure = "{" as open 0*( ws / dsc_comment as dsc / comment / object ) as items "}" as close
 
   ## Dictionary: "<< objects >>" (guide: docs/syntax/dictionaries.adoc).
   ## Keys and values are objects; pairing is semantic (the interpreter
   ## stack), not syntactic.
-  dictionary = "<<" 0*( ws / comment / object ) ">>"
+  dictionary = "<<" as open 0*( ws / dsc_comment as dsc / comment / object ) as items ">>" as close
 
   ## ------------------------------------------------------------------
   ## Operator vocabulary
@@ -142,5 +151,11 @@ grammar PostScript version "0.1.0" {
     capture "<4f 4b> print" { hex_string: "<4f 4b>" }
     capture "/proc { 1 2 add } def" { literal_name: "/proc" }
     capture "%%BeginSetup\n1 pop" { dsc: "%%BeginSetup" }
+    capture "[1 2]" { open: "[" close: "]" }
+    capture "<< /A 1 >>" { open: "<<" close: ">>" }
+    capture "{ %%Page: 1\n }" { dsc: "%%Page: 1" }
+    capture "%%A\rB\n1" { dsc: "%%A\rB" }
+    capture "\\Name" { literal_name: "\\Name" }
+    capture "// x" { literal_name: "/" }
   }
 }

@@ -41,6 +41,52 @@ module Postscript
         new(source).tokenize
       end
 
+      # Escapes in a literal string that stand for one character. Any
+      # other escaped character stands for itself, except octal digits.
+      ESCAPES = {
+        "n" => "\n", "r" => "\r", "t" => "\t", "b" => "\b", "f" => "\f",
+        "\\" => "\\", "(" => "(", ")" => ")"
+      }.freeze
+
+      # The value of a literal string from the bytes between its outer
+      # parentheses: escapes expanded, \ddd octal (1-3 digits) taken
+      # modulo 256.
+      def self.decode_string(raw)
+        value = +""
+        index = 0
+        while index < raw.bytesize
+          byte = raw.getbyte(index)
+          index += 1
+          if byte == 92 && index < raw.bytesize # backslash
+            index = decode_escape(raw, index, value)
+          else
+            value << byte.chr
+          end
+        end
+        value
+      end
+
+      # The value of a hex string from the bytes between < and >.
+      def self.decode_hex(raw)
+        raw.delete("^0-9a-fA-F")
+      end
+
+      def self.decode_escape(raw, index, value)
+        char = raw.getbyte(index).chr
+        if (replacement = ESCAPES[char])
+          value << replacement
+          index + 1
+        elsif ("0".."7").cover?(char)
+          digits = raw.byteslice(index, 3)[/\A[0-7]+/]
+          value << (digits.to_i(8) & 0xFF).chr
+          index + digits.bytesize
+        else
+          value << char
+          index + 1
+        end
+      end
+      private_class_method :decode_escape
+
       private
 
       def eos? = @position >= @source.bytesize
@@ -148,8 +194,9 @@ module Postscript
           byte = @source.getbyte(@position)
           advance
           case byte
-          when 92 # backslash
-            handle_escape
+          when 92 # backslash: kept raw, with the byte it escapes
+            @string_start[:bytes] << "\\"
+            @string_start[:bytes] << advance.chr unless eos?
           when 40 # (
             @string_depth += 1
             @string_start[:bytes] << "("
@@ -169,48 +216,9 @@ module Postscript
                                              @string_start[:column]])
       end
 
-      def handle_escape
-        byte = peek
-        return if byte.nil?
-
-        char = byte.chr
-        replacement =
-          case char
-          when "n"  then "\n"
-          when "r"  then "\r"
-          when "t"  then "\t"
-          when "b"  then "\b"
-          when "f"  then "\f"
-          when "\\" then "\\"
-          when "("  then "("
-          when ")"  then ")"
-          when "0".."7"
-            consume_octal_escape
-          else
-            char
-          end
-        return unless replacement.is_a?(String)
-
-        advance
-        @string_start[:bytes] << replacement
-      end
-
-      def consume_octal_escape
-        digits = +""
-        3.times do
-          byte = peek
-          break unless byte && byte >= 48 && byte <= 55 # 0..7
-
-          digits << byte.chr
-          advance
-        end
-        code = digits.to_i(8) & 0xFF
-        @string_start[:bytes] << code.chr
-        nil
-      end
-
       def emit_string
-        @tokens << Model::Token.new(:string, @string_start[:bytes],
+        value = self.class.decode_string(@string_start[:bytes])
+        @tokens << Model::Token.new(:string, value,
                                     line: @string_start[:line], column: @string_start[:column])
         @string_start = nil
         @state = :top
@@ -245,7 +253,7 @@ module Postscript
       end
 
       def emit_hexstring
-        hex = @hex_start[:bytes].delete("^0-9a-fA-F")
+        hex = self.class.decode_hex(@hex_start[:bytes])
         @tokens << Model::Token.new(:hexstring, hex,
                                     line: @hex_start[:line], column: @hex_start[:column])
         @hex_start = nil

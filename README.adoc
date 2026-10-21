@@ -43,6 +43,26 @@ ps_text = Postscript::Serializer.call(program)
 puts ps_text
 ----
 
+=== Native engine (optional)
+
+`engine: :native` tokenizes with the PostScript PARG grammar in
+`grammars/` on the parsanol native engine:
+
+[source,ruby]
+----
+program = Postscript.parse(source, engine: :native)
+Postscript::Source::NativeEngine.available? # => true when it can run
+----
+
+It needs the `parsanol` gem (1.3.96 or newer, Ruby 3.2 or newer), which
+this gem does not depend on: add it to your Gemfile to use it. Without
+it, `engine: :native` raises `Postscript::NativeEngineUnavailable`.
+
+It produces the same tokens, programs and errors as the default Ruby
+lexer; where the grammar rejects the source, the Ruby lexer tokenizes
+it. It is currently slower than the Ruby lexer, so the default is
+`engine: :ruby`. `benchmark/parse.rb --engine native` measures both.
+
 == Architecture
 
 Three layers, each with a single responsibility:
