@@ -60,6 +60,20 @@ module Postscript
       Serializer.call(program, **opts)
     end
 
+    # One-shot: +Model::Program+ -> array of +LevelViolation+, one per
+    # operator that needs a newer language level than +level+. Reports
+    # and never raises for a parsed program; see Validation::Levels for
+    # how the level is chosen when +level:+ is nil. An explicit level
+    # outside 1..3 raises ArgumentError.
+    #
+    # Example:
+    #   program = Postscript.parse("0 0 moveto shfill")
+    #   Postscript.level_violations(program, level: 2)
+    #   # => [#<struct Postscript::LevelViolation keyword="shfill", level=3>]
+    def level_violations(program, level: nil)
+      Validation::Levels.violations(program, level: level)
+    end
+
     # One-shot: PS source string -> array of +Model::Token+.
     # Useful for debugging or building alternative parsers.
     def tokenize(source, engine: :ruby)
