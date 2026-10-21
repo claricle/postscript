@@ -48,8 +48,10 @@ module Postscript
           end.freeze
         end
 
+        # Not YAML.safe_load_file: it needs Psych 3.3.2, and Ruby 3.0
+        # ships Psych 3.3.0.
         def operators(path)
-          YAML.safe_load_file(path).fetch("operators")
+          File.open(path) { |file| YAML.safe_load(file) }.fetch("operators")
         end
 
         def build_entry(keyword, fields, source)
