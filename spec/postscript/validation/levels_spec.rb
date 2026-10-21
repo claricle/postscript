@@ -18,6 +18,33 @@ RSpec.describe Postscript::Validation::Levels do
   end
 
   describe ".violations" do
+    context "with a %%LanguageLevel header" do
+      let(:body) { "<< /PageSize [612 792] >> setpagedevice\n" }
+      let(:source) { "%!PS\n%%LanguageLevel: 1\n#{body}" }
+
+      it "uses the header language level" do
+        expect(described_class.violations(Postscript.parse(source)))
+          .to eq([violation("setpagedevice", 2)])
+      end
+
+      it "defaults to level 3 when the header level is absent" do
+        source = "%!PS\n#{body}"
+
+        expect(described_class.violations(Postscript.parse(source))).to eq([])
+      end
+
+      it "allows an explicit level to override the header" do
+        expect(described_class.violations(Postscript.parse(source), level: 3))
+          .to eq([])
+      end
+
+      it "ignores an out-of-range header level" do
+        source = "%!PS\n%%LanguageLevel: 4\nshfill\n"
+
+        expect(described_class.violations(Postscript.parse(source))).to eq([])
+      end
+    end
+
     [1, 2].each do |level|
       it "reports shfill at level #{level}" do
         expect(violations("shfill", level: level))
