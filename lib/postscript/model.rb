@@ -11,8 +11,8 @@ module Postscript
     autoload :Program, "postscript/model/program"
     autoload :Literals, "postscript/model/literals"
     autoload :Operator, "postscript/model/operator"
-    autoload :UnknownOperator, "postscript/model/operator"
-    autoload :InvokeProcedure, "postscript/model/operator"
+    autoload :UnknownOperator, "postscript/model/operators"
+    autoload :InvokeProcedure, "postscript/model/operators"
     autoload :Operators, "postscript/model/operators"
   end
 end
