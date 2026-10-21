@@ -1,0 +1,3 @@
+= show
+
+Displays a string using the current font.

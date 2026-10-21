@@ -1,0 +1,4 @@
+= Font and text
+
+* link:/commands/references/show/[`show`] - Display a string.
+* link:/commands/references/abs/[`abs`] - Absolute value.

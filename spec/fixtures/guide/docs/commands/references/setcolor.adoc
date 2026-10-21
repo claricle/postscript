@@ -1,0 +1,4 @@
+= setcolor
+
+*Available in*: PostScript Level 2 and higher.
+This is a Level 1 operator in an unrelated example.
