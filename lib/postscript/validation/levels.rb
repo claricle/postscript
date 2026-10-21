@@ -1,15 +1,11 @@
 # frozen_string_literal: true
 
-# Model.autoload points InvokeProcedure at model/operator.rb, but it is
-# defined in model/operators.rb.
-require "postscript/model/operators"
-
 module Postscript
   module Validation
     # Finds operators that need a newer PostScript language level than
-    # the one given. An operator's level is the first level that has it
-    # (Model::Vocabulary); names with no vocabulary entry and calls to
-    # user procedures are never violations.
+    # the one given. An operator's level is the first level that has it;
+    # names with no vocabulary entry and calls to user procedures are
+    # never violations.
     module Levels
       LEVELS = (1..3)
 
@@ -34,12 +30,11 @@ module Postscript
           end
         end
 
-        # A user procedure's body is checked where it is defined, as a
-        # Procedure literal, so its calls are skipped.
+        # Calls to user procedures are never violations: InvokeProcedure
+        # has no language level, and the body is checked where it is
+        # defined, as a Procedure literal.
         def check(operator, level, result)
-          return if operator.is_a?(Model::InvokeProcedure)
-
-          needed = Model::Vocabulary.level(operator.keyword)
+          needed = operator.language_level
           return unless needed && needed > level
 
           result << LevelViolation.new(keyword: operator.keyword,
