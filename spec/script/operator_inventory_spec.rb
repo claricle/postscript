@@ -21,4 +21,11 @@ RSpec.describe OperatorInventory do
 
     expect(rows.tally).to eq(expected_rows)
   end
+
+  it "keeps the generator and its rake task out of the gem" do
+    gemspec = File.expand_path("../../postscript.gemspec", __dir__)
+    files = Gem::Specification.load(gemspec).files
+
+    expect(files.grep(%r{\A(?:rakelib|script)/})).to be_empty
+  end
 end
