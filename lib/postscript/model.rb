@@ -6,6 +6,7 @@ module Postscript
   # the parser emits Model::Program; the renderer / serializer consume
   # Model::Program.
   module Model
+    autoload :Vocabulary, "postscript/model/vocabulary"
     autoload :Token, "postscript/model/token"
     autoload :Program, "postscript/model/program"
     autoload :Literals, "postscript/model/literals"
