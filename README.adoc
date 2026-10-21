@@ -63,6 +63,32 @@ lexer; where the grammar rejects the source, the Ruby lexer tokenizes
 it. It is currently slower than the Ruby lexer, so the default is
 `engine: :ruby`. `benchmark/parse.rb --engine native` measures both.
 
+== Language levels
+
+One grammar parses every language level; levels are vocabulary data,
+not grammar. An operator's level comes from the PostScript Language
+Guide's operator pages, plus `data/operator_overrides.yml` for what the
+Guide lacks. See the full inventory in
+link:docs/operators.adoc[docs/operators.adoc].
+
+[source,ruby]
+----
+program = Postscript.parse("0 0 moveto shfill")
+Postscript.level_violations(program, level: 2)
+# => [#<struct Postscript::LevelViolation keyword="shfill", level=3>]
+----
+
+Without `level:`, the program's `%%LanguageLevel` header is used. With
+no header, or one outside 1..3, the level is 3. An explicit `level:` must
+be 1, 2 or 3, or it raises `ArgumentError`. With a valid level, it reports
+violations and never raises for a parsed program.
+
+Names with no vocabulary entry and calls to user procedures are never
+violations.
+
+Known limitation: operators inside `<< >>` dictionaries, and operators
+inside `[ ]` that the AST builder drops, are not checked.
+
 == Architecture
 
 Three layers, each with a single responsibility:
