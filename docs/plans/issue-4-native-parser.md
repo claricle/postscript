@@ -145,14 +145,18 @@ The largest remaining uncertainty is how many grammar/lexer differences the pari
 
 ## Progress and handoff
 
-Status is **Not started** for every work item; this document records a plan, not implementation progress.
+Status on 2026-10-22: **every work item is done**, and [#4](https://github.com/claricle/postscript/issues/4) is closed. The plan itself landed in [#7](https://github.com/claricle/postscript/pull/7). Upstream prerequisites are met: [postscript-parg#3](https://github.com/claricle/postscript-parg/pull/3) merged on 2026-10-20, and the engine fixes ([parsanol-rs#251](https://github.com/parsanol/parsanol-rs/pull/251), [parsanol-ruby#242](https://github.com/parsanol/parsanol-ruby/pull/242)) are released in parsanol 1.3.96 and later.
 
-| Work item | Status | Evidence / remaining gap |
-|---|---|---|
-| 1. Confirm the released engine | Waiting | Route decided; the engine fix is in parsanol-rs#251 / parsanol-ruby#242, to be released as 1.3.96. |
-| 2. Vendor grammar/artifact and CI | Not started | Waiting on postscript-parg#3. |
-| 3. Opt-in native tokenization | Not started | Can be developed against a local parsanol build. |
-| 4. Operator vocabulary/levels | Not started | Map all Guide operators to current registry and Level 1/2/3 metadata. |
-| 5. Parity, errors, benchmarks | Not started | Run differential and existing checks, then capture same-corpus benchmark. |
+| Work item | Status | PRs | Evidence |
+|---|---|---|---|
+| 1. Confirm the released engine | Done | [#11](https://github.com/claricle/postscript/pull/11) | The native path requires parsanol 1.3.96 or newer with its native extension; CI runs the native specs on Ruby 3.3, 3.4 and 4.0. |
+| 2. Vendor grammar/artifact and CI | Done | [#5](https://github.com/claricle/postscript/pull/5), [#6](https://github.com/claricle/postscript/pull/6), [#8](https://github.com/claricle/postscript/pull/8) | `grammars/postscript.parg` and `grammars/postscript.json` are pinned to an upstream commit in `grammars/upstream.yml`; the `grammar` workflow runs `script/check_grammar.rb`. |
+| 3. Opt-in native tokenization | Done | [#10](https://github.com/claricle/postscript/pull/10), [#11](https://github.com/claricle/postscript/pull/11) | `Postscript::Source.parse(source, engine: :native)`; the Ruby lexer stays the default, and `NativeEngineUnavailable` is raised when parsanol is missing. |
+| 4. Operator vocabulary/levels | Done | [#13](https://github.com/claricle/postscript/pull/13) (I4-A1), [#16](https://github.com/claricle/postscript/pull/16) (A2), [#19](https://github.com/claricle/postscript/pull/19) (A3), [#14](https://github.com/claricle/postscript/pull/14) (A4), [#18](https://github.com/claricle/postscript/pull/18) (B1), [#17](https://github.com/claricle/postscript/pull/17) (B3), [#20](https://github.com/claricle/postscript/pull/20) (B4), [#22](https://github.com/claricle/postscript/pull/22) (B5), [#21](https://github.com/claricle/postscript/pull/21) (C1), [#23](https://github.com/claricle/postscript/pull/23) (C2), [#25](https://github.com/claricle/postscript/pull/25) (C3), [#24](https://github.com/claricle/postscript/pull/24) (C4) | Guide operators extracted to `data/guide_operators.yml` and checked in CI, gaps filled in `data/operator_overrides.yml`, `Model::Vocabulary`, `Operator.language_level`, level violations through `Postscript.level_violations`, and the generated inventory in `docs/operators.adoc`. |
+| 5. Parity, errors, benchmarks | Done | [#11](https://github.com/claricle/postscript/pull/11), [#15](https://github.com/claricle/postscript/pull/15) | `spec/postscript/source/native_lexer_spec.rb` checks token and `Model::Program` parity and errors against the Ruby lexer on every fixture; `benchmark/parse.rb` and the postsvg corpus benchmark record the measurements, and native stays opt-in. |
 
-**Next executable action:** vendor the grammar once postscript-parg#3 merges, and develop the opt-in native lexer against a local parsanol 1.3.96 build.
+**Follow-ups, tracked separately:**
+
+- [#26](https://github.com/claricle/postscript/issues/26): decide on the 6 places where the lexer differs from the Guide.
+- [#27](https://github.com/claricle/postscript/issues/27): the AST builder drops dictionaries and non-literal array elements.
+- Guide gaps behind the operator overrides, each linked from its `reason` in `data/operator_overrides.yml`: [postscript-guide#8](https://github.com/claricle/postscript-guide/issues/8) (pages without a level), [#9](https://github.com/claricle/postscript-guide/issues/9) (operators without a page), [#10](https://github.com/claricle/postscript-guide/issues/10) (Level 2 operators listed as new in Level 3), [#11](https://github.com/claricle/postscript-guide/issues/11) (operators named only on the level pages).
