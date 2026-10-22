@@ -3,161 +3,161 @@ operators:
   and:
     categories: [relational-boolean]
     level: 1
-    reason: "No Guide page and no Guide category for relational/boolean operators; PLRM 3rd ed.: LanguageLevel 1"
+    reason: "No Guide page and no Guide category for relational/boolean operators; PLRM 3rd ed.: LanguageLevel 1; Guide gap: claricle/postscript-guide#9"
   ashow:
     level: 1
-    reason: "Guide page states no level; PLRM 3rd ed.: LanguageLevel 1"
+    reason: "Guide page states no level; PLRM 3rd ed.: LanguageLevel 1; Guide gap: claricle/postscript-guide#8"
   awidthshow:
     level: 1
-    reason: "Guide page states no level; PLRM 3rd ed.: LanguageLevel 1"
+    reason: "Guide page states no level; PLRM 3rd ed.: LanguageLevel 1; Guide gap: claricle/postscript-guide#8"
   charpath:
     level: 1
-    reason: "Guide page states no level; PLRM 3rd ed.: LanguageLevel 1"
+    reason: "Guide page states no level; PLRM 3rd ed.: LanguageLevel 1; Guide gap: claricle/postscript-guide#8"
   copypage:
     categories: [device-output]
     level: 1
-    reason: "No Guide page; PLRM 3rd ed.: LanguageLevel 1"
+    reason: "No Guide page; PLRM 3rd ed.: LanguageLevel 1; Guide gap: claricle/postscript-guide#9"
   currentfont:
     level: 1
-    reason: "Guide page states no level; PLRM 3rd ed.: LanguageLevel 1"
+    reason: "Guide page states no level; PLRM 3rd ed.: LanguageLevel 1; Guide gap: claricle/postscript-guide#8"
   currentglobal:
     level: 2
-    reason: "Named only on level-2.adoc; no Guide category for VM operators; PLRM 3rd ed.: LanguageLevel 2"
+    reason: "Named only on level-2.adoc; no Guide category for VM operators; PLRM 3rd ed.: LanguageLevel 2; Guide gap: claricle/postscript-guide#11"
   currentpagedevice:
     categories: [device-output]
     level: 2
-    reason: "Named only on level-2.adoc; PLRM 3rd ed.: LanguageLevel 2"
+    reason: "Named only on level-2.adoc; PLRM 3rd ed.: LanguageLevel 2; Guide gap: claricle/postscript-guide#11"
   definefont:
     level: 1
-    reason: "Guide page states no level; PLRM 3rd ed.: LanguageLevel 1"
+    reason: "Guide page states no level; PLRM 3rd ed.: LanguageLevel 1; Guide gap: claricle/postscript-guide#8"
   eq:
     categories: [relational-boolean]
     level: 1
-    reason: "No Guide page and no Guide category for relational/boolean operators; PLRM 3rd ed.: LanguageLevel 1"
+    reason: "No Guide page and no Guide category for relational/boolean operators; PLRM 3rd ed.: LanguageLevel 1; Guide gap: claricle/postscript-guide#9"
   "false":
     categories: [relational-boolean]
     level: 1
-    reason: "No Guide page and no Guide category for relational/boolean operators; PLRM 3rd ed.: LanguageLevel 1"
+    reason: "No Guide page and no Guide category for relational/boolean operators; PLRM 3rd ed.: LanguageLevel 1; Guide gap: claricle/postscript-guide#9"
   filter:
     categories: [file-io]
     level: 2
-    reason: "Named only on level-2.adoc; PLRM 3rd ed.: LanguageLevel 2"
+    reason: "Named only on level-2.adoc; PLRM 3rd ed.: LanguageLevel 2; Guide gap: claricle/postscript-guide#11"
   findfont:
     level: 1
-    reason: "Guide page states no level; PLRM 3rd ed.: LanguageLevel 1"
+    reason: "Guide page states no level; PLRM 3rd ed.: LanguageLevel 1; Guide gap: claricle/postscript-guide#8"
   ge:
     categories: [relational-boolean]
     level: 1
-    reason: "No Guide page and no Guide category for relational/boolean operators; PLRM 3rd ed.: LanguageLevel 1"
+    reason: "No Guide page and no Guide category for relational/boolean operators; PLRM 3rd ed.: LanguageLevel 1; Guide gap: claricle/postscript-guide#9"
   gt:
     categories: [relational-boolean]
     level: 1
-    reason: "No Guide page and no Guide category for relational/boolean operators; PLRM 3rd ed.: LanguageLevel 1"
+    reason: "No Guide page and no Guide category for relational/boolean operators; PLRM 3rd ed.: LanguageLevel 1; Guide gap: claricle/postscript-guide#9"
   kshow:
     level: 1
-    reason: "Guide page states no level; PLRM 3rd ed.: LanguageLevel 1"
+    reason: "Guide page states no level; PLRM 3rd ed.: LanguageLevel 1; Guide gap: claricle/postscript-guide#8"
   le:
     categories: [relational-boolean]
     level: 1
-    reason: "No Guide page and no Guide category for relational/boolean operators; PLRM 3rd ed.: LanguageLevel 1"
+    reason: "No Guide page and no Guide category for relational/boolean operators; PLRM 3rd ed.: LanguageLevel 1; Guide gap: claricle/postscript-guide#9"
   lt:
     categories: [relational-boolean]
     level: 1
-    reason: "No Guide page and no Guide category for relational/boolean operators; PLRM 3rd ed.: LanguageLevel 1"
+    reason: "No Guide page and no Guide category for relational/boolean operators; PLRM 3rd ed.: LanguageLevel 1; Guide gap: claricle/postscript-guide#9"
   makefont:
     level: 1
-    reason: "Guide page states no level; PLRM 3rd ed.: LanguageLevel 1"
+    reason: "Guide page states no level; PLRM 3rd ed.: LanguageLevel 1; Guide gap: claricle/postscript-guide#8"
   makepattern:
     categories: [color]
     level: 2
-    reason: "Named only on level-2.adoc; PLRM 3rd ed.: LanguageLevel 2"
+    reason: "Named only on level-2.adoc; PLRM 3rd ed.: LanguageLevel 2; Guide gap: claricle/postscript-guide#11"
   ne:
     categories: [relational-boolean]
     level: 1
-    reason: "No Guide page and no Guide category for relational/boolean operators; PLRM 3rd ed.: LanguageLevel 1"
+    reason: "No Guide page and no Guide category for relational/boolean operators; PLRM 3rd ed.: LanguageLevel 1; Guide gap: claricle/postscript-guide#9"
   not:
     categories: [relational-boolean]
     level: 1
-    reason: "No Guide page and no Guide category for relational/boolean operators; PLRM 3rd ed.: LanguageLevel 1"
+    reason: "No Guide page and no Guide category for relational/boolean operators; PLRM 3rd ed.: LanguageLevel 1; Guide gap: claricle/postscript-guide#9"
   nulldevice:
     categories: [device-output]
     level: 1
-    reason: "No Guide page; PLRM 3rd ed.: LanguageLevel 1"
+    reason: "No Guide page; PLRM 3rd ed.: LanguageLevel 1; Guide gap: claricle/postscript-guide#9"
   or:
     categories: [relational-boolean]
     level: 1
-    reason: "No Guide page and no Guide category for relational/boolean operators; PLRM 3rd ed.: LanguageLevel 1"
+    reason: "No Guide page and no Guide category for relational/boolean operators; PLRM 3rd ed.: LanguageLevel 1; Guide gap: claricle/postscript-guide#9"
   scalefont:
     level: 1
-    reason: "Guide page states no level; PLRM 3rd ed.: LanguageLevel 1"
+    reason: "Guide page states no level; PLRM 3rd ed.: LanguageLevel 1; Guide gap: claricle/postscript-guide#8"
   setblackgeneration:
     categories: [color]
     level: 2
-    reason: "Named only on level-3.adoc, which lists it; PLRM 3rd ed.: LanguageLevel 2 (Level 1 CMYK color extension)"
+    reason: "Named only on level-3.adoc, which lists it; PLRM 3rd ed.: LanguageLevel 2 (Level 1 CMYK color extension); Guide gaps: claricle/postscript-guide#11, claricle/postscript-guide#10"
   setcolor:
     categories: [color]
     level: 2
-    reason: "Named only on level-2.adoc; PLRM 3rd ed.: LanguageLevel 2"
+    reason: "Named only on level-2.adoc; PLRM 3rd ed.: LanguageLevel 2; Guide gap: claricle/postscript-guide#11"
   setcolorspace:
     categories: [color]
     level: 2
-    reason: "Named only on level-2.adoc; PLRM 3rd ed.: LanguageLevel 2"
+    reason: "Named only on level-2.adoc; PLRM 3rd ed.: LanguageLevel 2; Guide gap: claricle/postscript-guide#11"
   setfont:
     level: 1
-    reason: "Guide page states no level; PLRM 3rd ed.: LanguageLevel 1"
+    reason: "Guide page states no level; PLRM 3rd ed.: LanguageLevel 1; Guide gap: claricle/postscript-guide#8"
   setglobal:
     level: 2
-    reason: "Named only on level-2.adoc; no Guide category for VM operators; PLRM 3rd ed.: LanguageLevel 2"
+    reason: "Named only on level-2.adoc; no Guide category for VM operators; PLRM 3rd ed.: LanguageLevel 2; Guide gap: claricle/postscript-guide#11"
   sethalftone:
     categories: [graphics-state]
     level: 2
-    reason: "Named only on level-3.adoc, which lists it; PLRM 3rd ed.: LanguageLevel 2"
+    reason: "Named only on level-3.adoc, which lists it; PLRM 3rd ed.: LanguageLevel 2; Guide gaps: claricle/postscript-guide#11, claricle/postscript-guide#10"
   setpacking:
     categories: [array-string]
     level: 2
-    reason: "Named only on level-2.adoc; PLRM 3rd ed.: LanguageLevel 2 (Level 1 version 25.0 extension)"
+    reason: "Named only on level-2.adoc; PLRM 3rd ed.: LanguageLevel 2 (Level 1 version 25.0 extension); Guide gap: claricle/postscript-guide#11"
   setpagedevice:
     categories: [device-output]
     level: 2
-    reason: "Named only on level-2.adoc; PLRM 3rd ed.: LanguageLevel 2"
+    reason: "Named only on level-2.adoc; PLRM 3rd ed.: LanguageLevel 2; Guide gap: claricle/postscript-guide#11"
   setpattern:
     categories: [color]
     level: 2
-    reason: "Named only on level-2.adoc; PLRM 3rd ed.: LanguageLevel 2"
+    reason: "Named only on level-2.adoc; PLRM 3rd ed.: LanguageLevel 2; Guide gap: claricle/postscript-guide#11"
   setsmoothness:
     categories: [graphics-state]
     level: 3
-    reason: "Named only on level-3.adoc; PLRM 3rd ed.: LanguageLevel 3"
+    reason: "Named only on level-3.adoc; PLRM 3rd ed.: LanguageLevel 3; Guide gap: claricle/postscript-guide#11"
   setundercolorremoval:
     categories: [color]
     level: 2
-    reason: "Named only on level-3.adoc, which lists it; PLRM 3rd ed.: LanguageLevel 2 (Level 1 CMYK color extension)"
+    reason: "Named only on level-3.adoc, which lists it; PLRM 3rd ed.: LanguageLevel 2 (Level 1 CMYK color extension); Guide gaps: claricle/postscript-guide#11, claricle/postscript-guide#10"
   shfill:
     categories: [painting]
     level: 3
-    reason: "Named only on level-3.adoc; PLRM 3rd ed.: LanguageLevel 3"
+    reason: "Named only on level-3.adoc; PLRM 3rd ed.: LanguageLevel 3; Guide gap: claricle/postscript-guide#11"
   show:
     level: 1
-    reason: "Guide page states no level; PLRM 3rd ed.: LanguageLevel 1"
+    reason: "Guide page states no level; PLRM 3rd ed.: LanguageLevel 1; Guide gap: claricle/postscript-guide#8"
   showpage:
     categories: [device-output]
     level: 1
-    reason: "No Guide page; PLRM 3rd ed.: LanguageLevel 1"
+    reason: "No Guide page; PLRM 3rd ed.: LanguageLevel 1; Guide gap: claricle/postscript-guide#9"
   stringwidth:
     level: 1
-    reason: "Guide page states no level; PLRM 3rd ed.: LanguageLevel 1"
+    reason: "Guide page states no level; PLRM 3rd ed.: LanguageLevel 1; Guide gap: claricle/postscript-guide#8"
   "true":
     categories: [relational-boolean]
     level: 1
-    reason: "No Guide page and no Guide category for relational/boolean operators; PLRM 3rd ed.: LanguageLevel 1"
+    reason: "No Guide page and no Guide category for relational/boolean operators; PLRM 3rd ed.: LanguageLevel 1; Guide gap: claricle/postscript-guide#9"
   widthshow:
     level: 1
-    reason: "Guide page states no level; PLRM 3rd ed.: LanguageLevel 1"
+    reason: "Guide page states no level; PLRM 3rd ed.: LanguageLevel 1; Guide gap: claricle/postscript-guide#8"
   xor:
     categories: [relational-boolean]
     level: 1
-    reason: "No Guide page and no Guide category for relational/boolean operators; PLRM 3rd ed.: LanguageLevel 1"
+    reason: "No Guide page and no Guide category for relational/boolean operators; PLRM 3rd ed.: LanguageLevel 1; Guide gap: claricle/postscript-guide#9"
   xyshow:
     categories: [font-text]
     level: 2
-    reason: "No Guide page; PLRM 3rd ed.: LanguageLevel 2"
+    reason: "No Guide page; PLRM 3rd ed.: LanguageLevel 2; Guide gap: claricle/postscript-guide#9"
