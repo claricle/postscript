@@ -23,6 +23,7 @@ module Postscript
   autoload :Matrix, "postscript/matrix"
   autoload :Color, "postscript/color"
   autoload :LevelViolation, "postscript/level_violation"
+  autoload :Diagnostic, "postscript/diagnostic"
 
   # PS source-reading layer
   autoload :Source, "postscript/source"
@@ -30,6 +31,7 @@ module Postscript
   # Typed PS domain model
   autoload :Model, "postscript/model"
   autoload :Validation, "postscript/validation"
+  Validation.autoload :Report, "postscript/report"
 
   # PS source serializer
   autoload :Serializer, "postscript/serializer"
