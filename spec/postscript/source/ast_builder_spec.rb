@@ -7,6 +7,19 @@ RSpec.describe Postscript::Source::AstBuilder do
     Postscript::Source.parse(src)
   end
 
+  {
+    "{ { 1 }" => [4, "unbalanced procedure braces"],
+    "[ [1]" => [4, "unbalanced array_close"],
+    "<< /key << /nested 1 >>" => [5, "unbalanced dict_close"],
+  }.each do |source, (column, message)|
+    it "positions #{message} at the opening token" do
+      expect { parse("% heading\n  #{source}") }
+        .to raise_error(Postscript::SyntaxError, message) { |error|
+          expect(error.source_position).to eq([2, column])
+        }
+    end
+  end
+
   it "captures BoundingBox in header" do
     program = parse("%!PS-Adobe-3.0 EPSF-3.0\n%%BoundingBox: 0 0 100 100\nshowpage\n")
     expect(program.header.bounding_box).to eq([0.0, 0.0, 100.0, 100.0])
