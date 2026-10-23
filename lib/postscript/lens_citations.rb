@@ -8,6 +8,8 @@ module Postscript
   # Explicitly require this optional integration when LensCore is available.
   module LensCitations
     PLRM_URI = "https://www.adobe.com/products/postscript/pdfs/PLRM.pdf"
+    # Guide page titles are operator keywords, but filenames can differ.
+    GUIDE_SLUGS = { "index" => "psindex" }.freeze
 
     class << self
       def profile(level)
@@ -53,8 +55,9 @@ module Postscript
         metadata = File.open(Model::Vocabulary::GUIDE) do |file|
           YAML.safe_load(file).fetch("guide")
         end
+        slug = GUIDE_SLUGS.fetch(keyword, keyword)
         "https://github.com/#{metadata.fetch('repository')}/blob/" \
-          "#{metadata.fetch('commit')}/docs/commands/references/#{keyword}.adoc"
+          "#{metadata.fetch('commit')}/docs/commands/references/#{slug}.adoc"
       end
     end
   end

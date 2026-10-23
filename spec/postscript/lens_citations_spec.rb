@@ -55,6 +55,21 @@ RSpec.describe "Postscript::LensCitations", skip: !lens_core_available do
     expect(citation.label).to include("moveto", "LanguageLevel 1")
   end
 
+  it "cites index's Guide filename rather than its operator keyword" do
+    metadata = YAML.safe_load_file(vocabulary::GUIDE).fetch("guide")
+    entry = vocabulary.entry("index")
+    citation = citations.entry(entry)
+
+    expect(entry.source).to eq(:guide)
+    expect(citation.uri).to eq(
+      "https://github.com/#{metadata.fetch('repository')}/blob/" \
+      "#{metadata.fetch('commit')}/docs/commands/references/psindex.adoc",
+    )
+    expect(citation.label).to include("index", "LanguageLevel 1")
+  end
+
+  # Pia's 2026-10-23 decision: moveto covers Guide citations; shfill is
+  # an override and must use the same citation policy as every override.
   it "cites overrides with PLRM references for currentglobal and shfill" do
     %w[shfill currentglobal].each do |keyword|
       entry = vocabulary.entry(keyword)
