@@ -24,6 +24,9 @@ RSpec.describe "Postscript::LensCitations", skip: !lens_core_available do
       expect(list).to be_frozen
       expect(list).not_to be_empty
       expect(list).to all(be_a(LensCore::Citation).and(be_frozen))
+      expect(list.first.uri).to eq(
+        "https://www.adobe.com/products/postscript/pdfs/PLRM.pdf",
+      )
       expect(list.first.label).to eq("PLRM 3rd ed.: LanguageLevel #{index + 1}")
     end
   end
@@ -41,16 +44,28 @@ RSpec.describe "Postscript::LensCitations", skip: !lens_core_available do
     expect(citation.label).to include("moveto", "LanguageLevel 1")
   end
 
-  it "cites PLRM for override entries, including shfill" do
+  it "cites the versioned override data for currentglobal and shfill" do
     %w[shfill currentglobal].each do |keyword|
       entry = vocabulary.entry(keyword)
       citation = citations.entry(entry)
 
       expect(entry.source).to eq(:override)
-      expect(citation.uri).to eq(citations.profile(entry.level).first.uri)
-      expect(citation.label).to include("PLRM 3rd ed.", keyword,
+      expect(citation.uri).to eq(
+        "https://github.com/claricle/postscript/blob/" \
+        "v#{Postscript::VERSION}/data/operator_overrides.yml",
+      )
+      expect(citation.label).to include(keyword,
                                         "LanguageLevel #{entry.level}")
     end
+  end
+
+  it "uses the gem version when constructing override citations" do
+    stub_const("Postscript::VERSION", "1.2.3")
+
+    expect(citations.entry(vocabulary.entry("currentglobal")).uri).to eq(
+      "https://github.com/claricle/postscript/blob/" \
+      "v1.2.3/data/operator_overrides.yml",
+    )
   end
 
   it "uses absolute URIs for every entry and profile" do
