@@ -15,6 +15,9 @@ end
 RSpec.describe "Postscript::LensCitations", skip: !lens_core_available do
   let(:citations) { Postscript::LensCitations }
   let(:vocabulary) { Postscript::Model::Vocabulary }
+  let(:override_metadata) do
+    YAML.safe_load_file(vocabulary::OVERRIDES).fetch("operators")
+  end
 
   [nil, 0, 4, -1, 1.5, 1.0, "1"].each do |level|
     it "rejects the invalid profile level #{level.inspect}" do
@@ -52,31 +55,47 @@ RSpec.describe "Postscript::LensCitations", skip: !lens_core_available do
     expect(citation.label).to include("moveto", "LanguageLevel 1")
   end
 
-  # Lead decision, 2026-10-23: moveto tests the Guide; overrides cite PLRM.
-  it "cites PLRM for currentglobal and shfill" do
+  it "cites overrides with PLRM references for currentglobal and shfill" do
     %w[shfill currentglobal].each do |keyword|
       entry = vocabulary.entry(keyword)
       citation = citations.entry(entry)
 
       expect(entry.source).to eq(:override)
       expect(citation.uri).to eq(
-        "https://www.adobe.com/products/postscript/pdfs/PLRM.pdf",
+        "https://github.com/claricle/postscript/blob/" \
+        "v#{Postscript::VERSION}/data/operator_overrides.yml",
       )
-      expect(citation.label).to include("PLRM 3rd ed.", keyword,
-                                        "LanguageLevel #{entry.level}")
+      expect(citation.label).to include(
+        keyword, "PLRM 3rd ed.: LanguageLevel #{entry.level}"
+      )
     end
   end
 
-  it "cites PLRM for every override entry" do
+  it "cites versioned data and the recorded reason for every override" do
     overrides = vocabulary.keywords.map { |keyword| vocabulary.entry(keyword) }
       .select { |entry| entry.source == :override }
 
     expect(overrides).not_to be_empty
     overrides.each do |entry|
-      expect(citations.entry(entry).uri).to eq(
-        "https://www.adobe.com/products/postscript/pdfs/PLRM.pdf",
+      citation = citations.entry(entry)
+      expect(citation.uri).to eq(
+        "https://github.com/claricle/postscript/blob/" \
+        "v#{Postscript::VERSION}/data/operator_overrides.yml",
+      )
+      expect(citation.label).to include(
+        entry.keyword, "LanguageLevel #{entry.level}",
+        override_metadata.fetch(entry.keyword).fetch("reason")
       )
     end
+  end
+
+  it "uses the gem version when constructing override citations" do
+    stub_const("Postscript::VERSION", "1.2.3")
+
+    expect(citations.entry(vocabulary.entry("currentglobal")).uri).to eq(
+      "https://github.com/claricle/postscript/blob/" \
+      "v1.2.3/data/operator_overrides.yml",
+    )
   end
 
   it "uses absolute URIs for every entry and profile" do
