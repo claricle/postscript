@@ -2,7 +2,6 @@
 
 require "lens_core"
 require "postscript/model/vocabulary"
-require "postscript/version"
 
 module Postscript
   # Explicitly require this optional integration when LensCore is available.
@@ -23,8 +22,8 @@ module Postscript
 
       def entry(vocabulary_entry)
         guide = vocabulary_entry.source == :guide
-        uri = guide ? guide_uri(vocabulary_entry.keyword) : override_uri
-        title = guide ? "PostScript Language Guide" : "PostScript overrides"
+        uri = guide ? guide_uri(vocabulary_entry.keyword) : PLRM_URI
+        title = guide ? "PostScript Language Guide" : "PLRM 3rd ed."
         LensCore::Citation.new(
           uri: uri,
           label: "#{title}: #{vocabulary_entry.keyword}, " \
@@ -33,11 +32,6 @@ module Postscript
       end
 
       private
-
-      def override_uri
-        "https://github.com/claricle/postscript/blob/" \
-          "v#{VERSION}/data/operator_overrides.yml"
-      end
 
       def guide_uri(keyword)
         metadata = File.open(Model::Vocabulary::GUIDE) do |file|
