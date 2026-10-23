@@ -11,6 +11,10 @@ module Postscript
 
     class << self
       def profile(level)
+        unless level.is_a?(Integer) && (1..3).cover?(level)
+          raise ArgumentError, "level must be 1, 2 or 3, got #{level.inspect}"
+        end
+
         citation = LensCore::Citation.new(
           uri: PLRM_URI, label: "PLRM 3rd ed.: LanguageLevel #{level}",
         )

@@ -16,6 +16,14 @@ RSpec.describe "Postscript::LensCitations", skip: !lens_core_available do
   let(:citations) { Postscript::LensCitations }
   let(:vocabulary) { Postscript::Model::Vocabulary }
 
+  [nil, 0, 4, -1, 1.5, 1.0, "1"].each do |level|
+    it "rejects the invalid profile level #{level.inspect}" do
+      expect { citations.profile(level) }.to raise_error(
+        ArgumentError, "level must be 1, 2 or 3, got #{level.inspect}"
+      )
+    end
+  end
+
   it "returns distinct, non-empty frozen profile citation lists" do
     profiles = (1..3).map { |level| citations.profile(level) }
 
