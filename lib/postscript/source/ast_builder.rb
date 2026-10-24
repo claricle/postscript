@@ -206,7 +206,8 @@ module Postscript
           end
           i += 1
         end
-        raise SyntaxError, "unbalanced procedure braces"
+        raise SyntaxError.new("unbalanced procedure braces",
+                              source_position: token_position(tokens[start_index - 1]))
       end
 
       def match_until(start_index, close_type, open_type)
@@ -222,7 +223,8 @@ module Postscript
           end
           i += 1
         end
-        raise SyntaxError, "unbalanced #{close_type}"
+        raise SyntaxError.new("unbalanced #{close_type}",
+                              source_position: token_position(tokens[start_index - 1]))
       end
 
       def consume_operator(token, collected)
