@@ -26,6 +26,79 @@ RSpec.describe Postscript::Source::NativeEngine do
     end
   end
 
+  describe ".diagnose" do
+    before do
+      skip "parsanol native engine unavailable" unless
+        described_class.available?
+    end
+
+    let(:artifact) { described_class.send(:artifact) }
+
+    it "returns nil for valid input" do
+      expect(described_class.diagnose("1 2 add")).to be_nil
+    end
+
+    it "retains native labels, offsets and messages on rejection" do
+      expect(described_class.diagnose("(unterminated")).to include(
+        offset: 13, expected: a_collection_including("')'"), rule: "main",
+        message: a_string_matching(/expected/)
+      )
+    end
+
+    it "prefers structured expected labels and a supplied PARG rule" do
+      allow(artifact).to receive(:parse_with_diagnostics).with("main", "bad")
+        .and_return("ok" => false, "offset" => 2, "expected" => ["closing"],
+                    "message" => "expected closing", "rule" => "procedure")
+
+      expect(described_class.diagnose("bad")).to eq(
+        offset: 2, expected: ["closing"], message: "expected closing",
+        rule: "procedure"
+      )
+    end
+
+    context "with an artifact without parse_with_diagnostics" do
+      let(:legacy) { instance_double(Parsanol::PARG::Artifact) }
+      let(:cause_type) do
+        Struct.new(:position, :children, :expected, :message, :rule)
+      end
+
+      before do
+        native_artifact = artifact
+        allow(legacy).to receive(:parse) do |entry, input|
+          native_artifact.parse(entry, input)
+        end
+        allow(described_class).to receive(:artifact).and_return(legacy)
+      end
+
+      it "returns nil for valid input" do
+        expect(described_class.diagnose("1 2 add")).to be_nil
+      end
+
+      it "reads the failure cause from the native parser" do
+        expect(described_class.diagnose("(unterminated")).to include(
+          offset: 13, expected: a_collection_including("')'"), rule: "main",
+          message: a_string_matching(/expected/)
+        )
+      end
+
+      it "reads structured fields from the furthest nested cause" do
+        child = instance_double(cause_type, position: 7, children: [],
+                                            expected: ["close"], rule: "array",
+                                            message: ["expected close"])
+        earlier = instance_double(Parsanol::Cause, position: 3, children: [])
+        root = instance_double(Parsanol::Cause, position: 0,
+                                                children: [child, earlier])
+        error = Parsanol::ParseFailed.new("outer failure", root)
+        allow(legacy).to receive(:parse).with("main", "bad").and_raise(error)
+
+        expect(described_class.diagnose("bad")).to eq(
+          offset: 7, expected: ["close"], message: "expected close",
+          rule: "array"
+        )
+      end
+    end
+  end
+
   # In a child process whose load path puts a parsanol.rb that raises
   # LoadError first, as when the gem is not installed.
   describe "without parsanol" do

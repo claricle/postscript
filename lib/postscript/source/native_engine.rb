@@ -37,6 +37,20 @@ module Postscript
           end
         end
 
+        # A native grammar failure in UTF-8 input byte coordinates, or nil
+        # on success. Older artifacts expose the same data on the cause.
+        def diagnose(input)
+          grammar = artifact
+          result = if grammar.respond_to?(:parse_with_diagnostics)
+                     grammar.parse_with_diagnostics(ENTRY, input)
+                   else
+                     diagnose_failure(grammar, input)
+                   end
+          return if result["ok"]
+
+          diagnostic(result)
+        end
+
         # Raises NativeEngineUnavailable unless parsanol +version+ is
         # recent enough and its +native+ extension loaded.
         def check!(version, native:)
@@ -51,6 +65,40 @@ module Postscript
         end
 
         private
+
+        def diagnostic(result)
+          message = Array(result["message"]).join
+          expected = Array(result["expected"])
+          expected = message_labels(message) if expected.empty?
+          { offset: result["offset"], expected: expected, message: message,
+            rule: result["rule"] || ENTRY }
+        end
+
+        def diagnose_failure(grammar, input)
+          grammar.parse(ENTRY, input)
+          { "ok" => true }
+        rescue Parsanol::ParseFailed => e
+          cause = deepest_cause(e.parse_failure_cause)
+          { "ok" => false, "offset" => cause&.position,
+            "expected" => cause.respond_to?(:expected) ? cause.expected : [],
+            "message" => cause&.message || e.message,
+            "rule" => cause.respond_to?(:rule) ? cause.rule : nil }
+        end
+
+        def deepest_cause(cause)
+          return cause if cause.nil? || cause.children.empty?
+
+          deepest = cause.children.map { |child| deepest_cause(child) }
+            .max_by { |child| child.position.to_i }
+          deepest.position.to_i >= cause.position.to_i ? deepest : cause
+        end
+
+        # Some releases wrap native labels only in Cause#message, leaving
+        # the structured expected list empty. Keep the PARG labels verbatim.
+        def message_labels(message)
+          labels = message[/\AFailed to match: expected one of \[(.*)\]\z/m, 1]
+          labels ? labels.split(", ") : []
+        end
 
         def artifact
           @artifact ||= begin
