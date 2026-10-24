@@ -7,32 +7,33 @@ RSpec.describe Postscript::Validator do
     Postscript.validate(source, engine: :ruby, **options)
   end
 
-  it "reports a level error with its vocabulary entry and target" do
+  it "reports a level error with its keyword, required level and target" do
     report = validate("0 0 moveto shfill", level: 1)
 
-    expect(report).to be_a(Postscript::Validation::Report)
-    expect(report).not_to be_ok
+    expect(report).to be_a(LensCore::Report)
+    expect(report.valid).to be(false)
     expect(report.diagnostics.size).to eq(1)
-    expect(report.errors.first.to_h).to include(
-      code: :level, kind: :level, severity: :error,
-      message: "shfill is Level 3; this program targets Level 1",
-      entry: Postscript::Model::Vocabulary.entry("shfill")
+    expect(report.diagnostics.find(&:error?).to_h).to include(
+      "kind" => "level", "severity" => "error",
+      "message" => "shfill is Level 3; this program targets Level 1",
+      "context" => { "keyword" => "shfill", "required_level" => 3,
+                     "target_level" => 1 }
     )
-    expect(report.errors.first.entry).to have_attributes(level: 3,
-                                                         source: :override)
   end
 
   it "accepts Level 3 operators at Level 3" do
     report = validate("0 0 moveto shfill", level: 3)
 
-    expect(report).to be_ok
+    expect(report.valid).to be(true)
     expect(report.diagnostics).to be_empty
+    expect(report.profile.id).to eq("postscript-level-3")
   end
 
   it "uses the declared language level in its message" do
     report = validate("%!PS\n%%LanguageLevel: 2\nshfill")
 
-    expect(report.errors.map(&:message)).to eq(
+    expect(report.profile.id).to eq("postscript-level-2")
+    expect(report.diagnostics.select(&:error?).map(&:message)).to eq(
       ["shfill is Level 3; this program targets Level 2"],
     )
   end
@@ -40,15 +41,19 @@ RSpec.describe Postscript::Validator do
   it "lets an explicit level override the header" do
     report = validate("%!PS\n%%LanguageLevel: 2\nshfill", level: 1)
 
-    expect(report.errors.first.message).to end_with("targets Level 1")
-    expect(validate("%!PS\n%%LanguageLevel: 1\nshfill", level: 3)).to be_ok
+    expect(report.diagnostics.find(&:error?).message)
+      .to end_with("targets Level 1")
+    expect(validate("%!PS\n%%LanguageLevel: 1\nshfill",
+                    level: 3).valid).to be(true)
   end
 
   [nil, 0, 4].each do |header|
     it "defaults to Level 3 with header #{header.inspect}" do
       source = header ? "%!PS\n%%LanguageLevel: #{header}\nshfill" : "shfill"
 
-      expect(validate(source).diagnostics).to be_empty
+      report = validate(source)
+      expect(report.diagnostics).to be_empty
+      expect(report.profile.id).to eq("postscript-level-3")
     end
   end
 
@@ -62,7 +67,6 @@ RSpec.describe Postscript::Validator do
 
   it "returns only grammar diagnostics without running model checks" do
     allow(Postscript::Validation::Levels).to receive(:violations)
-      .and_call_original
     allow(Postscript::Validation::Vocabulary).to receive(:unknown_names)
       .and_call_original
     token = Postscript.tokenize("{ unclosed", engine: :ruby).first
@@ -73,28 +77,32 @@ RSpec.describe Postscript::Validator do
       .not_to have_received(:unknown_names)
 
     expect(report.diagnostics.size).to eq(1)
-    expect(report.errors.first.to_h).to include(
-      kind: :grammar, severity: :error, line: token.line,
-      column: token.column, offset: token.column - 1
+    expect(report.diagnostics.find(&:error?).to_h).to include(
+      "kind" => "grammar", "severity" => "error",
+      "context" => include("line" => token.line, "column" => token.column,
+                           "offset" => token.column - 1, "engine" => "ruby")
     )
   end
 
   it "reports unknown names as warnings that do not invalidate the report" do
     report = validate("mystery_name")
 
-    expect(report).to be_ok
+    expect(report.valid).to be(true)
     expect(report.diagnostics.size).to eq(1)
-    expect(report.warnings.first.to_h).to include(
-      code: :unknown_name, kind: :unknown_name, severity: :warning, entry: nil,
+    expect(report.diagnostics.find(&:warning?).to_h).to include(
+      "kind" => "unknown-name", "severity" => "warning",
+      "context" => { "keyword" => "mystery_name" }
     )
-    expect(report.warnings.first.message).to include("mystery_name")
+    expect(report.diagnostics.find(&:warning?).message)
+      .to include("mystery_name")
   end
 
   it "combines level errors and unknown-name warnings" do
     report = validate("shfill mystery_name", level: 1)
 
-    expect(report.errors.map(&:kind)).to eq([:level])
-    expect(report.warnings.map(&:kind)).to eq([:unknown_name])
+    expect(report.diagnostics.select(&:error?).map(&:kind)).to eq(["level"])
+    expect(report.diagnostics.select(&:warning?).map(&:kind))
+      .to eq(["unknown-name"])
   end
 
   it "recognizes defined names" do
@@ -107,7 +115,7 @@ RSpec.describe Postscript::Validator do
     allow(Postscript::Source::NativeLexer).to receive(:tokenize)
       .and_call_original
 
-    expect(Postscript.validate("0 0 moveto")).to be_ok
+    expect(Postscript.validate("0 0 moveto").valid).to be(true)
     expect(Postscript::Source::NativeLexer).not_to have_received(:tokenize)
   end
 
@@ -120,7 +128,7 @@ RSpec.describe Postscript::Validator do
       .with("shfill").and_return(Postscript.tokenize("shfill"))
 
     expect(Postscript.validate("shfill",
-                               level: 1).errors.first.kind).to eq(:level)
+                               level: 1).diagnostics.first.kind).to eq("level")
     expect(Postscript::Validation::Grammar).to have_received(:check)
       .with("shfill", engine: :native).once
     expect(Postscript::Source::NativeLexer).to have_received(:tokenize)
@@ -131,7 +139,7 @@ RSpec.describe Postscript::Validator do
     allow(Postscript::Source::NativeEngine).to receive(:available?)
       .and_call_original
 
-    expect(validate("")).to be_ok
+    expect(validate("").valid).to be(true)
     expect(Postscript::Source::NativeEngine).not_to have_received(:available?)
   end
 

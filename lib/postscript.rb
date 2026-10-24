@@ -32,6 +32,7 @@ module Postscript
   autoload :Model, "postscript/model"
   autoload :Validation, "postscript/validation"
   autoload :Validator, "postscript/validator"
+  autoload :LensReport, "postscript/lens_report"
   Validation.autoload :Report, "postscript/report"
 
   # PS source serializer
@@ -79,8 +80,8 @@ module Postscript
 
     # Check grammar, language level and unknown names in one report.
     # Auto uses the native engine when available, otherwise Ruby.
-    def validate(source, level: nil, engine: :auto)
-      Validator.call(source, level: level, engine: engine)
+    def validate(source, level: nil, engine: :auto, timestamp: nil)
+      Validator.call(source, level: level, engine: engine, timestamp: timestamp)
     end
 
     # One-shot: PS source string -> array of +Model::Token+.
