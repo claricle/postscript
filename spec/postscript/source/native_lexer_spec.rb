@@ -44,6 +44,32 @@ RSpec.describe Postscript::Source::NativeLexer do
   end
 
   describe "sources the grammar accepts" do
+    it "positions adjacent delimiters and words at their opening byte" do
+      source = "{1}[2]<<>>name"
+      expect_parity(source)
+
+      tokens = described_class.tokenize(source)
+      expected = [
+        ["{", 1, 1], ["1", 1, 2], ["}", 1, 3],
+        ["[", 1, 4], ["2", 1, 5], ["]", 1, 6],
+        ["<<", 1, 7], [">>", 1, 9], ["name", 1, 11]
+      ]
+      expect(tokens.map { |t| [t.value, t.line, t.column] }).to eq(expected)
+    end
+
+    it "counts delimiter columns in bytes across LF and CRLF lines" do
+      source = "(é){}\r\n[]\n(é)<<\n>>"
+      expect_parity(source)
+
+      tokens = described_class.tokenize(source)
+      expected = [
+        ["é".b, 1, 1], ["{", 1, 5], ["}", 1, 6],
+        ["[", 2, 1], ["]", 2, 2],
+        ["é".b, 3, 1], ["<<", 3, 5], [">>", 4, 1]
+      ]
+      expect(tokens.map { |t| [t.value, t.line, t.column] }).to eq(expected)
+    end
+
     {
       "every token type" =>
         "%!PS\n%%Title: t\n/a 1 def { 2 3 add } [ (s) <4f 4b> ] " \

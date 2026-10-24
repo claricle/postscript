@@ -97,11 +97,10 @@ module Postscript
         add(:dsc, @source.byteslice(start, range.size - 2).chomp, start)
       end
 
-      # Lexer reports a delimiter at the byte after it.
       def composite((open, close), value)
-        add(*open, span(value[:open]).end)
+        add(*open, span(value[:open]).begin)
         walk(value[:items])
-        add(*close, span(value[:close]).end)
+        add(*close, span(value[:close]).begin)
       end
 
       def token(type, text, value, literal: false)

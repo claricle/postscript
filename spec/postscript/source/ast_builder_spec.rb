@@ -8,9 +8,9 @@ RSpec.describe Postscript::Source::AstBuilder do
   end
 
   {
-    "{ { 1 }" => [4, "unbalanced procedure braces"],
-    "[ [1]" => [4, "unbalanced array_close"],
-    "<< /key << /nested 1 >>" => [5, "unbalanced dict_close"],
+    "{ { 1 }" => [3, "unbalanced procedure braces"],
+    "[ [1]" => [3, "unbalanced array_close"],
+    "<< /key << /nested 1 >>" => [3, "unbalanced dict_close"],
   }.each do |source, (column, message)|
     it "positions #{message} at the opening token" do
       expect { parse("% heading\n  #{source}") }
@@ -18,6 +18,27 @@ RSpec.describe Postscript::Source::AstBuilder do
           expect(error.source_position).to eq([2, column])
         }
     end
+  end
+
+  it "finds each adjacent token by its exact line and byte column" do
+    tokens = Postscript::Source::Lexer.tokenize("{1}[2]<<>>name\n{3}[4]<<>>name")
+    builder = described_class.new(tokens)
+    columns = [1, 2, 3, 4, 5, 6, 7, 9, 11]
+    positions = [1, 2].flat_map do |line|
+      columns.map { |column| [line, column] }
+    end
+
+    tokens.each_with_index do |token, index|
+      expect(builder.send(:token_position, token)).to eq(positions[index])
+      expect(builder.send(:find_index, positions[index])).to eq(index)
+    end
+    expect(builder.send(:find_index, [1, 8])).to eq(tokens.length)
+  end
+
+  it "builds adjacent composites at repeated columns on different lines" do
+    program = parse("{1}{2}\n[3][4]")
+
+    expect(program.body.map { |node| node.map(&:value) }).to eq([[1], [2], [3], [4]])
   end
 
   it "captures BoundingBox in header" do
