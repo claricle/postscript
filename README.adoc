@@ -89,6 +89,33 @@ violations.
 Known limitation: operators inside `<< >>` dictionaries, and operators
 inside `[ ]` that the AST builder drops, are not checked.
 
+== Validation
+
+`Postscript.validate` returns a `Postscript::Validation::Report` combining
+grammar, language-level and unknown-name checks:
+
+[source,ruby]
+----
+report = Postscript.validate("0 0 moveto shfill", level: 1)
+report.ok? # => false
+report.errors.first.message
+# => "shfill is Level 3; this program targets Level 1"
+report.errors.first.entry # => vocabulary entry for shfill (Level 3, :override)
+report.warnings # => []
+----
+
+Grammar errors stop validation before model checks. Level errors include
+their vocabulary entry and use the same explicit-level, header and default
+rules as `Postscript.level_violations`. Unknown names produce warnings;
+warnings alone do not make `ok?` false. This static check recognizes `def`
+bindings but does not simulate execution or dictionary scope, and shares
+the model limitations described above.
+
+The default `engine: :auto` uses the native engine when available and Ruby
+otherwise. Pass `engine: :ruby` to select Ruby, or `engine: :native` to
+require native support (`Postscript::NativeEngineUnavailable` is raised
+if unavailable). The defaults of `parse` and `tokenize` remain `:ruby`.
+
 == Architecture
 
 Three layers, each with a single responsibility:

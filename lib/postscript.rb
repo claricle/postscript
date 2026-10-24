@@ -31,6 +31,7 @@ module Postscript
   # Typed PS domain model
   autoload :Model, "postscript/model"
   autoload :Validation, "postscript/validation"
+  autoload :Validator, "postscript/validator"
   Validation.autoload :Report, "postscript/report"
 
   # PS source serializer
@@ -74,6 +75,12 @@ module Postscript
     #   # => [#<struct Postscript::LevelViolation keyword="shfill", level=3>]
     def level_violations(program, level: nil)
       Validation::Levels.violations(program, level: level)
+    end
+
+    # Check grammar, language level and unknown names in one report.
+    # Auto uses the native engine when available, otherwise Ruby.
+    def validate(source, level: nil, engine: :auto)
+      Validator.call(source, level: level, engine: engine)
     end
 
     # One-shot: PS source string -> array of +Model::Token+.
