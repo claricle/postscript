@@ -112,13 +112,17 @@ RSpec.describe Postscript::Validator do
   it "selects native for both grammar and model parsing when available" do
     allow(Postscript::Source::NativeEngine).to receive(:available?)
       .and_return(true)
+    allow(Postscript::Validation::Grammar).to receive(:check)
+      .with("shfill", engine: :native).and_return([])
     allow(Postscript::Source::NativeLexer).to receive(:tokenize)
       .with("shfill").and_return(Postscript.tokenize("shfill"))
 
     expect(Postscript.validate("shfill",
                                level: 1).errors.first.kind).to eq(:level)
+    expect(Postscript::Validation::Grammar).to have_received(:check)
+      .with("shfill", engine: :native).once
     expect(Postscript::Source::NativeLexer).to have_received(:tokenize)
-      .with("shfill").twice
+      .with("shfill").once
   end
 
   it "honors explicit Ruby without probing native availability" do
