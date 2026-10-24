@@ -133,7 +133,8 @@ module Postscript
 
       # The source as parsanol reads it: UTF-8. A source with non-ASCII
       # bytes is read as Latin-1, so every byte is one character whatever
-      # the encoding, and offsets are mapped back to source bytes.
+      # the encoding, and offsets are mapped back to source bytes. Shared
+      # with Validation::Grammar for native diagnostic coordinates.
       class Input
         attr_reader :text
 
@@ -180,7 +181,6 @@ module Postscript
           [line + 1, offset - start + 1]
         end
       end
-      private_constant :Input, :Lines
     end
   end
 end

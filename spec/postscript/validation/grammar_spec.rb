@@ -48,4 +48,82 @@ RSpec.describe Postscript::Validation::Grammar do
     expect { described_class.check("", engine: :unknown) }
       .to raise_error(ArgumentError, /unknown engine/)
   end
+
+  describe "native diagnostics" do
+    before do
+      skip "parsanol native engine unavailable" unless
+        Postscript::Source::NativeEngine.available?
+    end
+
+    {
+      "{ unclosed" => [10, "'}'"],
+      "(unterminated" => [13, "')'"],
+      "<hex" => [1, "'>'"],
+      "[1 2" => [4, "']'"],
+      "<< /key 1" => [9, "'>>'"],
+    }.each do |source, (offset, expected)|
+      it "reports PARG's failure for #{source.inspect}" do
+        diagnostics = described_class.check(source, engine: :native)
+
+        expect(diagnostics.size).to eq(1)
+        expect(diagnostics.first).to be_a(Postscript::Diagnostic)
+        expect(diagnostics.first.to_h).to include(
+          code: :syntax, kind: :grammar, severity: :error,
+          offset: offset, line: 1, column: offset + 1,
+          rule: "main", message: a_string_matching(/expected/),
+          expected: a_collection_including(expected)
+        )
+      end
+    end
+
+    it "maps UTF-8 text offsets to source bytes, LF lines and byte columns" do
+      prefix = "% é\r\n\n(é) \r"
+      source = "#{prefix}<hex"
+      diagnostic = described_class.check(source, engine: :native).first
+
+      expect(diagnostic.to_h).to include(offset: prefix.bytesize + 1,
+                                         line: 3, column: 8)
+      expect(source.b.byteslice(diagnostic.offset, 1)).to eq("h")
+    end
+
+    it "maps binary source offsets back from the native UTF-8 input" do
+      source = "(\xE9) <hex".b
+      diagnostic = described_class.check(source, engine: :native).first
+
+      expect(diagnostic.to_h).to include(offset: 5, line: 1, column: 6)
+      expect(source.byteslice(diagnostic.offset, 1)).to eq("h")
+    end
+
+    it "returns no diagnostics for valid source" do
+      expect(described_class.check("{ (é) } [1] << /a 2 >> <ab>",
+                                   engine: :native)).to eq([])
+    end
+
+    it "keeps PARG rejections even when Lexer accepts the source" do
+      expect(described_class.check("<4g>", engine: :ruby)).to eq([])
+      expect(described_class.check("<4g>", engine: :native).first.to_h)
+        .to include(offset: 2, expected: a_collection_including("'>'"))
+    end
+
+    it "uses native diagnostics in auto mode when available" do
+      expect(described_class.check("<4g>", engine: :auto))
+        .to eq(described_class.check("<4g>", engine: :native))
+    end
+  end
+
+  it "uses Ruby diagnostics in auto mode when native is unavailable" do
+    allow(Postscript::Source::NativeEngine).to receive(:available?)
+      .and_return(false)
+
+    expect(described_class.check("{ unclosed", engine: :auto))
+      .to eq(described_class.check("{ unclosed", engine: :ruby))
+  end
+
+  it "propagates native availability errors" do
+    allow(Postscript::Source::NativeEngine).to receive(:diagnose)
+      .and_raise(Postscript::NativeEngineUnavailable, "native unavailable")
+
+    expect { described_class.check("", engine: :native) }
+      .to raise_error(Postscript::NativeEngineUnavailable, "native unavailable")
+  end
 end
