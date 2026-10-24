@@ -91,30 +91,158 @@ inside `[ ]` that the AST builder drops, are not checked.
 
 == Validation
 
-`Postscript.validate` returns a `Postscript::Validation::Report` combining
-grammar, language-level and unknown-name checks:
+`Postscript.validate` returns a `LensCore::Report` using the LensCore
+diagnostics v1 contract. Validation requires `lens_core` and Ruby >= 3.1;
+add the dependency to your Gemfile (currently pinned to commit
+`98c21c82bc97e3c8c4038048acdcec4a177c5f7c` of
+https://github.com/claricle/lens_core[lens_core]). It loads lazily, so parsing
+and serialization remain usable without it. If it cannot load, validation
+raises `Postscript::Error` with the dependency requirements.
 
 [source,ruby]
 ----
 report = Postscript.validate("0 0 moveto shfill", level: 1)
-report.ok? # => false
-report.errors.first.message
-# => "shfill is Level 3; this program targets Level 1"
-report.errors.first.entry # => vocabulary entry for shfill (Level 3, :override)
-report.warnings # => []
+report.valid # => false
+report.summary # => { "errors" => 1, "warnings" => 0, "infos" => 0 }
+diagnostic = report.diagnostics.first
+diagnostic.requirement_id # => "postscript.level.operator-available"
+diagnostic.message # => "shfill is Level 3; this program targets Level 1"
+diagnostic.context
+# => { "keyword" => "shfill", "required_level" => 3, "target_level" => 1 }
+diagnostic.remediation # => "declare %%LanguageLevel: 3 or remove shfill"
 ----
 
-Grammar errors stop validation before model checks. Level errors include
-their vocabulary entry and use the same explicit-level, header and default
-rules as `Postscript.level_violations`. Unknown names produce warnings;
-warnings alone do not make `ok?` false. This static check recognizes `def`
-bindings but does not simulate execution or dictionary scope, and shares
-the model limitations described above.
+Grammar errors stop validation before model checks. Level findings cite
+the operator's vocabulary source and use the same explicit-level, header
+and default rules as `Postscript.level_violations`. For invalid grammar,
+the profile uses the explicit level or defaults to Level 3. Unknown names
+produce warnings; warnings alone do not make `valid` false. This static
+check recognizes `def` bindings but does not simulate execution or
+dictionary scope, and shares the model limitations described above.
 
 The default `engine: :auto` uses the native engine when available and Ruby
 otherwise. Pass `engine: :ruby` to select Ruby, or `engine: :native` to
 require native support (`Postscript::NativeEngineUnavailable` is raised
 if unavailable). The defaults of `parse` and `tokenize` remain `:ruby`.
+
+Grammar findings retain each engine's message and put `line`, `column`,
+`offset`, `rule`, `expected` and `engine` in `context`. Coordinates are
+passed through from the engine. Diagnostics never have a `location`:
+LensCore v1 has no text location type. Model findings have no `engine`
+field, so accepted programs give identical reports across engines.
+Requirement IDs identify rules, with operator names kept in context.
+Diagnostic text is decoded as UTF-8; invalid byte sequences are displayed
+with the replacement character (`�`). The source bytes are unchanged.
+
+Reports omit timestamps unless the caller supplies `timestamp:` (a `Time`
+or RFC 3339 string). All three LensCore renderers accept the same report:
+
+[source,ruby]
+----
+report = Postscript.validate("{ unclosed", level: 1, engine: :ruby)
+puts LensCore::Renderers::Json.render(report)
+puts LensCore::Renderers::Yaml.render(report)
+puts LensCore::Renderers::Human.render(report)
+----
+
+Json output:
+
+[source,json]
+----
+{
+  "schema_version": 1,
+  "producer": {
+    "name": "postscript",
+    "version": "0.2.1"
+  },
+  "profile": {
+    "id": "postscript-level-1",
+    "citations": [
+      {
+        "uri": "https://www.adobe.com/products/postscript/pdfs/PLRM.pdf",
+        "label": "PLRM 3rd ed.: LanguageLevel 1"
+      }
+    ]
+  },
+  "valid": false,
+  "summary": {
+    "errors": 1,
+    "warnings": 0,
+    "infos": 0
+  },
+  "diagnostics": [
+    {
+      "severity": "error",
+      "kind": "grammar",
+      "requirement_id": "postscript.grammar.syntax",
+      "message": "unbalanced procedure braces",
+      "citations": [
+        {
+          "uri": "https://www.adobe.com/products/postscript/pdfs/PLRM.pdf",
+          "label": "PLRM 3rd ed.: LanguageLevel 1"
+        }
+      ],
+      "context": {
+        "column": 1,
+        "engine": "ruby",
+        "expected": [],
+        "line": 1,
+        "offset": 0,
+        "rule": null
+      }
+    }
+  ]
+}
+----
+
+Yaml output:
+
+[source,yaml]
+----
+---
+schema_version: 1
+producer:
+  name: postscript
+  version: 0.2.1
+profile:
+  id: postscript-level-1
+  citations:
+  - uri: https://www.adobe.com/products/postscript/pdfs/PLRM.pdf
+    label: 'PLRM 3rd ed.: LanguageLevel 1'
+valid: false
+summary:
+  errors: 1
+  warnings: 0
+  infos: 0
+diagnostics:
+- severity: error
+  kind: grammar
+  requirement_id: postscript.grammar.syntax
+  message: unbalanced procedure braces
+  citations:
+  - uri: https://www.adobe.com/products/postscript/pdfs/PLRM.pdf
+    label: 'PLRM 3rd ed.: LanguageLevel 1'
+  context:
+    column: 1
+    engine: ruby
+    expected: []
+    line: 1
+    offset: 0
+    rule:
+----
+
+Human output:
+
+[source,text]
+----
+postscript 0.2.1, profile postscript-level-1
+INVALID: 1 error, 0 warnings, 0 infos
+
+error  postscript.grammar.syntax  (grammar)
+  unbalanced procedure braces
+  see: PLRM 3rd ed.: LanguageLevel 1 https://www.adobe.com/products/postscript/pdfs/PLRM.pdf
+  context: {"column":1,"engine":"ruby","expected":[],"line":1,"offset":0,"rule":null}
+----
 
 == Architecture
 

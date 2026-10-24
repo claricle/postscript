@@ -24,24 +24,49 @@ RSpec.describe Postscript::Validator do
 
           diagnostics = Postscript.validate(source, engine: engine).diagnostics
           grammar = diagnostics.select do |diagnostic|
-            diagnostic.kind == :grammar
+            diagnostic.kind == "grammar"
           end
 
           expect(grammar.size).to eq(test.fetch("kind") == "accept" ? 0 : 1)
+          unless grammar.empty?
+            expect_grammar_finding(grammar.first, source, engine)
+          end
         end
       end
 
-      it "matches diagnostic keys and kinds across engines" do
+      it "matches accepted reports and rejected diagnostic shapes" do
         skip "parsanol native engine unavailable" unless
           Postscript::Source::NativeEngine.available?
 
-        ruby = Postscript.validate(source, engine: :ruby).diagnostics
-        native = Postscript.validate(source, engine: :native).diagnostics
+        ruby = Postscript.validate(source, engine: :ruby)
+        native = Postscript.validate(source, engine: :native)
 
-        expect(native.map { |diagnostic| diagnostic.to_h.keys })
-          .to eq(ruby.map { |diagnostic| diagnostic.to_h.keys })
-        expect(native.map(&:kind)).to eq(ruby.map(&:kind))
+        if test.fetch("kind") == "accept"
+          expect(native.to_h).to eq(ruby.to_h)
+        else
+          expect(native.valid).to eq(ruby.valid)
+          expect(native.summary).to eq(ruby.summary)
+          expect(diagnostic_shapes(native)).to eq(diagnostic_shapes(ruby))
+        end
       end
+    end
+  end
+
+  def expect_grammar_finding(diagnostic, source, engine)
+    original = Postscript::Validation::Grammar.check(source,
+                                                     engine: engine).first
+    context = original.to_h.slice(:line, :column, :offset, :rule, :expected)
+      .transform_keys(&:to_s).merge("engine" => engine.to_s)
+
+    expect(diagnostic.to_h).to include("message" => original.message,
+                                       "context" => context)
+  end
+
+  def diagnostic_shapes(report)
+    report.diagnostics.map do |diagnostic|
+      diagnostic.to_h.slice("severity", "kind", "requirement_id", "citations")
+        .merge("keys" => diagnostic.to_h.keys,
+               "context_keys" => diagnostic.context.keys)
     end
   end
 end
