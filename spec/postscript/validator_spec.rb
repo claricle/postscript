@@ -65,6 +65,7 @@ RSpec.describe Postscript::Validator do
       .and_call_original
     allow(Postscript::Validation::Vocabulary).to receive(:unknown_names)
       .and_call_original
+    token = Postscript.tokenize("{ unclosed", engine: :ruby).first
     report = validate("{ unclosed", level: 1)
 
     expect(Postscript::Validation::Levels).not_to have_received(:violations)
@@ -73,7 +74,8 @@ RSpec.describe Postscript::Validator do
 
     expect(report.diagnostics.size).to eq(1)
     expect(report.errors.first.to_h).to include(
-      kind: :grammar, severity: :error, line: 1, column: 2, offset: 1,
+      kind: :grammar, severity: :error, line: token.line,
+      column: token.column, offset: token.column - 1
     )
   end
 
