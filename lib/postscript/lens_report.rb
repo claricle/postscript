@@ -40,10 +40,10 @@ module Postscript
           severity: diagnostic.severity.to_s,
           kind: diagnostic.kind.to_s.tr("_", "-"),
           requirement_id: REQUIREMENTS.fetch(diagnostic.kind),
-          message: diagnostic.message,
+          message: utf8(diagnostic.message),
           citations: citations(diagnostic, profile_citations),
           remediation: remediation(diagnostic),
-          context: context(diagnostic, level, engine),
+          context: json_value(context(diagnostic, level, engine)),
         )
       end
 
@@ -65,11 +65,9 @@ module Postscript
       def context(diagnostic, level, engine)
         case diagnostic.kind
         when :grammar
-          json_value(
-            line: diagnostic.line, column: diagnostic.column,
+          { line: diagnostic.line, column: diagnostic.column,
             offset: diagnostic.offset, rule: diagnostic.rule,
-            expected: diagnostic.expected, engine: engine
-          )
+            expected: diagnostic.expected, engine: engine }
         when :level
           { "keyword" => diagnostic.entry.keyword,
             "required_level" => diagnostic.entry.level,
@@ -83,12 +81,18 @@ module Postscript
 
       def json_value(value)
         case value
-        when Symbol then value.to_s
+        when String, Symbol then utf8(value.to_s)
         when Array then value.map { |item| json_value(item) }
         when Hash
-          value.to_h { |key, item| [key.to_s, json_value(item)] }
+          value.to_h { |key, item| [utf8(key.to_s), json_value(item)] }
         else value
         end
+      end
+
+      # Lexers preserve source bytes in binary strings. LensCore requires
+      # UTF-8 text; retain valid sequences and replace invalid ones for display.
+      def utf8(value)
+        value.dup.force_encoding(Encoding::UTF_8).scrub
       end
     end
   end

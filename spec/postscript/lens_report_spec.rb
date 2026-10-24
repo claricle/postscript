@@ -36,6 +36,43 @@ RSpec.describe Postscript::LensReport do
     end
   end
 
+  names = { "café" => "café", "\xFF" => "\uFFFD" }
+  %i[ruby native].each do |engine|
+    names.each do |name, keyword|
+      it "reports non-ASCII name #{name.inspect} with #{engine}" do
+        skip "parsanol native engine unavailable" if engine == :native &&
+          !Postscript::Source::NativeEngine.available?
+
+        source = "0 0 moveto #{name}".freeze
+        report = Postscript.validate(source, engine: engine)
+
+        expect(report.valid).to be(true)
+        expect(report.diagnostics.size).to eq(1)
+        expect(report.diagnostics.first).to have_attributes(
+          severity: "warning", kind: "unknown-name",
+          message: "Unknown name: #{keyword}", context: { "keyword" => keyword }
+        )
+        expect_renderable(report, keyword)
+        expect(source.b).to eq("0 0 moveto #{name}".b)
+      end
+    end
+  end
+
+  def expect_renderable(report, keyword)
+    json = LensCore::Renderers::Json.render(report)
+    yaml = LensCore::Renderers::Yaml.render(report)
+
+    expect_schema_valid(json)
+    expect([LensCore::Parsers::Json.parse(json),
+            LensCore::Parsers::Yaml.parse(yaml)]).to all(eq(report))
+    expect(LensCore::Renderers::Human.render(report)).to include(keyword)
+  end
+
+  def expect_schema_valid(json)
+    schema = JSONSchemer.schema(LensCore::Schema.document)
+    expect(schema.validate(JSON.parse(json)).to_a).to be_empty
+  end
+
   let(:missing_dependency_script) do
     <<~RUBY
       require "postscript"

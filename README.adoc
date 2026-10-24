@@ -131,6 +131,8 @@ passed through from the engine. Diagnostics never have a `location`:
 LensCore v1 has no text location type. Model findings have no `engine`
 field, so accepted programs give identical reports across engines.
 Requirement IDs identify rules, with operator names kept in context.
+Diagnostic text is decoded as UTF-8; invalid byte sequences are displayed
+with the replacement character (`�`). The source bytes are unchanged.
 
 Reports omit timestamps unless the caller supplies `timestamp:` (a `Time`
 or RFC 3339 string). All three LensCore renderers accept the same report:
