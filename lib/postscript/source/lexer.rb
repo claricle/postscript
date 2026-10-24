@@ -119,18 +119,16 @@ module Postscript
         when "("        then start_string
         when "<"
           if peek(1) == 60 # <<
-            advance
-            advance
             emit(:dict_open, "<<")
           else
             start_hexstring
           end
         when ">"        then maybe_close_dict
         when ")"        then unbalanced_paren!
-        when "{"        then advance and emit(:proc_open, "{")
-        when "}"        then advance and emit(:proc_close, "}")
-        when "["        then advance and emit(:array_open, "[")
-        when "]"        then advance and emit(:array_close, "]")
+        when "{"        then emit(:proc_open, "{")
+        when "}"        then emit(:proc_close, "}")
+        when "["        then emit(:array_open, "[")
+        when "]"        then emit(:array_close, "]")
         when "/", "\\"
           start_name_with_slash(char)
         else
@@ -270,8 +268,6 @@ module Postscript
 
       def maybe_close_dict
         if peek(1) == 62 # >>
-          advance
-          advance
           emit(:dict_close, ">>")
         else
           # Lone '>' is not a valid token in PS; skip and warn via token.
@@ -330,6 +326,7 @@ module Postscript
 
       def emit(type, value)
         @tokens << Model::Token.new(type, value, line: @line, column: @column)
+        value.bytesize.times { advance }
       end
     end
   end

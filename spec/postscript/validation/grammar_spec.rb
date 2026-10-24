@@ -4,11 +4,11 @@ require "spec_helper"
 
 RSpec.describe Postscript::Validation::Grammar do
   {
-    "{ unclosed" => [1, 2, "unbalanced procedure braces"],
+    "{ unclosed" => [0, 1, "unbalanced procedure braces"],
     "(unterminated" => [0, 1, "unterminated string literal"],
     "<hex" => [0, 1, "unterminated hex string literal"],
-    "[1 2" => [1, 2, "unbalanced array_close"],
-    "<< /key 1" => [2, 3, "unbalanced dict_close"],
+    "[1 2" => [0, 1, "unbalanced array_close"],
+    "<< /key 1" => [0, 1, "unbalanced dict_close"],
   }.each do |source, (offset, column, message)|
     it "reports the lexer position for #{source.inspect}" do
       diagnostics = described_class.check(source)
@@ -70,6 +70,19 @@ RSpec.describe Postscript::Validation::Grammar do
         expect(diagnostics.first.to_h).to include(
           code: :syntax, kind: :grammar, severity: :error,
           offset: offset, line: 1, column: offset + 1,
+          rule: "main", message: a_string_matching(/expected/),
+          expected: a_collection_including(expected)
+        )
+      end
+
+      it "reports multiline byte positions for #{source.inspect}" do
+        prefix = "% é\r\n\n(é) \r"
+        diagnostic = described_class.check(prefix + source,
+                                           engine: :native).first
+
+        expect(diagnostic.to_h).to include(
+          code: :syntax, kind: :grammar, severity: :error,
+          offset: prefix.bytesize + offset, line: 3, column: 7 + offset,
           rule: "main", message: a_string_matching(/expected/),
           expected: a_collection_including(expected)
         )

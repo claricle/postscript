@@ -57,4 +57,26 @@ RSpec.describe Postscript::Source::Lexer do
     expect(types.first).to eq(:dict_open)
     expect(types.last).to eq(:dict_close)
   end
+
+  it "positions adjacent delimiters and words at their opening byte" do
+    tokens = lex("{1}[2]<<>>name")
+
+    expected = [
+      ["{", 1, 1], ["1", 1, 2], ["}", 1, 3],
+      ["[", 1, 4], ["2", 1, 5], ["]", 1, 6],
+      ["<<", 1, 7], [">>", 1, 9], ["name", 1, 11]
+    ]
+    expect(tokens.map { |t| [t.value, t.line, t.column] }).to eq(expected)
+  end
+
+  it "counts delimiter columns in bytes across LF and CRLF lines" do
+    tokens = lex("(é){}\r\n[]\n(é)<<\n>>")
+
+    expected = [
+      ["é".b, 1, 1], ["{", 1, 5], ["}", 1, 6],
+      ["[", 2, 1], ["]", 2, 2],
+      ["é".b, 3, 1], ["<<", 3, 5], [">>", 4, 1]
+    ]
+    expect(tokens.map { |t| [t.value, t.line, t.column] }).to eq(expected)
+  end
 end
