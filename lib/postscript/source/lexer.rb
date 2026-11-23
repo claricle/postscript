@@ -129,8 +129,15 @@ module Postscript
         when "}"        then emit(:proc_close, "}")
         when "["        then emit(:array_open, "[")
         when "]"        then emit(:array_close, "]")
-        when "/", "\\"
-          start_name_with_slash(char)
+        # Deviation, deliberate: a leading backslash also starts a
+        # literal name here, while the Guide starts literal names with
+        # "/" only (guide: docs/syntax/operators.adoc, "Literal Names";
+        # docs/syntax/tokens.adoc lists the delimiters without the
+        # backslash, so "\Name" would be an ordinary executable name).
+        # It matches the PARG grammar's literal_name rule
+        # ("/" / "\\"), and NativeLexer must produce exactly Lexer's
+        # tokens. Needs the same grammar change first (issue #26).
+        when "/", "\\" then start_name_with_slash
         else
           scan_word_or_number
         end
@@ -148,12 +155,26 @@ module Postscript
         consumed
       end
 
+      # Deviation, deliberate: this set includes VT (0x0B), which the
+      # Guide's whitespace list does not (guide: docs/syntax/tokens.adoc,
+      # "Whitespace" — only NUL HT LF FF CR SPACE). It matches the PARG
+      # grammar's ws rule (postscript-parg postscript.parg, "VT is
+      # included to match the lexer"), and NativeLexer must produce
+      # exactly Lexer's tokens; changing one side alone breaks that
+      # agreement. Needs the same grammar change first (issue #26).
       def whitespace_byte?(byte)
         byte && [32, 9, 10, 13, 12, 11, 0].include?(byte)
       end
 
       def start_dsc_or_comment
         advance # consume first %
+        # Deviation, deliberate: "%%" is recognised as a DSC comment in
+        # any context, while the Guide treats DSC comments as
+        # document-level lines (guide: docs/syntax/tokens.adoc,
+        # "Comments"). It matches the PARG grammar, which captures
+        # dsc_comment inside arrays, procedures and dictionaries like at
+        # top level, and NativeLexer must produce exactly Lexer's tokens.
+        # Needs the same grammar change first (issue #26).
         if peek == 37 # second %
           advance # consume second %
           @state = :dsc
@@ -166,6 +187,12 @@ module Postscript
         start_pos = @position
         start_line = @line
         start_col = @column
+        # Deviation, deliberate: only LF ends a DSC comment, while the
+        # Guide ends lines at CR, LF and CRLF (guide:
+        # docs/syntax/tokens.adoc, "Whitespace"/"Comments"). It matches
+        # the PARG grammar's dsc_comment rule ("Only LF ends it, as for
+        # comment"), and NativeLexer must produce exactly Lexer's tokens.
+        # Needs the same grammar change first (issue #26).
         advance until eos? || @source.getbyte(@position) == 10
         text = @source.byteslice(start_pos, @position - start_pos)
         @tokens << Model::Token.new(:dsc, text.chomp, line: start_line,
@@ -174,6 +201,9 @@ module Postscript
       end
 
       def scan_comment_body
+        # Deviation, deliberate: only LF ends a comment — see
+        # scan_dsc_body for the Guide citation and the grammar-parity
+        # rationale (issue #26).
         advance until eos? || @source.getbyte(@position) == 10
         @state = :top
       end
@@ -230,6 +260,9 @@ module Postscript
         @state = :hexstring
       end
 
+      # Hex strings hold hex digits and whitespace only (guide:
+      # docs/syntax/tokens.adoc, "Hexadecimal Strings"); any other byte
+      # is a syntax error, not a character to drop.
       def scan_hexstring_body
         until eos?
           byte = @source.getbyte(@position)
@@ -241,6 +274,12 @@ module Postscript
           when 32, 9, 10, 13, 12
             advance
           else
+            unless hex_digit_byte?(byte)
+              raise LexError.new(
+                "invalid hex digit #{byte.chr.inspect} in a hex string",
+                source_position: [@line, @column],
+              )
+            end
             advance
             @hex_start[:bytes] << byte.chr
           end
@@ -248,6 +287,10 @@ module Postscript
         raise LexError.new("unterminated hex string literal",
                            source_position: [@hex_start[:line],
                                              @hex_start[:column]])
+      end
+
+      def hex_digit_byte?(byte)
+        (48..57).cover?(byte) || (65..70).cover?(byte) || (97..102).cover?(byte)
       end
 
       def emit_hexstring
@@ -270,12 +313,15 @@ module Postscript
         if peek(1) == 62 # >>
           emit(:dict_close, ">>")
         else
-          # Lone '>' is not a valid token in PS; skip and warn via token.
-          advance
+          # The Guide has no lone ">" token: ">" closes a hex string,
+          # ">>" closes a dictionary; anywhere else it is a syntax
+          # error (guide: docs/syntax/tokens.adoc, "Token Delimiters").
+          raise LexError.new("unexpected '>'",
+                             source_position: [@line, @column])
         end
       end
 
-      def start_name_with_slash(_prefix)
+      def start_name_with_slash
         start_line = @line
         start_col = @column
         advance
@@ -287,6 +333,15 @@ module Postscript
           bytes << byte.chr
           advance
         end
+        # Deviation, deliberate: "//x" lexes as an empty literal name
+        # followed by "/x", while the Guide makes "//name" an
+        # immediately evaluated name (guide: docs/syntax/operators.adoc,
+        # "Immediately Evaluated Names"; docs/syntax/tokens.adoc). It
+        # matches the PARG grammar's literal_name rule ("the name may be
+        # empty: '//x' is an empty literal name followed by '/x'"), and
+        # NativeLexer must produce exactly Lexer's tokens; Guide shape
+        # also needs an immediate flag on Token and Model::Literals::Name
+        # first. Needs the same grammar change first (issue #26).
         @tokens << Model::Token.new(:name, bytes, line: start_line,
                                                   column: start_col, literal: true)
       end

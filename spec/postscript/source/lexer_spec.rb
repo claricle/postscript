@@ -51,6 +51,26 @@ RSpec.describe Postscript::Source::Lexer do
     ) { |error| expect(error.source_position).to eq([2, 3]) }
   end
 
+  it "rejects a lone '>', which is no token in PostScript" do
+    expect do
+      lex("1 > 2")
+    end.to raise_error(Postscript::LexError, "unexpected '>'") { |error|
+             expect(error.source_position).to eq([1, 3])
+           }
+  end
+
+  it "rejects a byte that is no hex digit inside a hex string" do
+    expect { lex("<4g>") }.to raise_error(
+      Postscript::LexError, "invalid hex digit \"g\" in a hex string"
+    ) { |error| expect(error.source_position).to eq([1, 3]) }
+  end
+
+  it "keeps whitespace and odd digit counts inside hex strings" do
+    tokens = lex("< 4f\n4B\t00 >")
+    expect(tokens[0].type).to eq(:hexstring)
+    expect(tokens[0].value).to eq("4f4B00")
+  end
+
   it "tokenizes dict delimiters" do
     tokens = lex("<< /A 1 /B 2 >>")
     types = tokens.map(&:type)
