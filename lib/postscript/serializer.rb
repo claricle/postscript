@@ -114,13 +114,57 @@ module Postscript
       end
     end
 
+    # Inline form for nodes nested inside an array, dictionary or
+    # procedure: composites recurse, operators and name references
+    # emit their keyword. Covers every node the AstBuilder can place
+    # in a composite, so round-trips lose nothing.
     def emit_inline(statement, buffer)
       case statement
-      when Model::Literals::Number then buffer << FormatNumber.call(statement.value)
-      when Model::Literals::Name then buffer << (statement.literal? ? "/" : "") << statement.value
-      when Model::Literals::StringLiteral then buffer << escape_string(statement.value)
-      when Model::Literals::HexLiteral then buffer << "<" << statement.value << ">"
-      else buffer << statement.class.name.to_s
+      when Model::Literals::Number
+        buffer << FormatNumber.call(statement.value)
+      when Model::Literals::Name
+        buffer << (statement.literal? ? "/" : "") << statement.value
+      when Model::Literals::StringLiteral
+        buffer << escape_string(statement.value)
+      when Model::Literals::HexLiteral
+        buffer << "<" << statement.value << ">"
+      when Model::Literals::ArrayLiteral, Model::Literals::Dictionary,
+           Model::Literals::Procedure
+        emit_inline_composite(statement, buffer)
+      when Model::InvokeProcedure
+        buffer << statement.name
+      when Model::Operator, Model::UnknownOperator
+        buffer << statement.keyword
+      else
+        raise SerializeError, "cannot serialize #{statement.class} inline"
+      end
+    end
+
+    # Bracketed composites nest: elements recurse through emit_inline.
+    def emit_inline_composite(statement, buffer)
+      case statement
+      when Model::Literals::ArrayLiteral
+        buffer << "[ "
+        statement.elements.each do |element|
+          emit_inline(element, buffer)
+          buffer << " "
+        end
+        buffer << "]"
+      when Model::Literals::Dictionary
+        buffer << "<< "
+        statement.entries.each do |key, value|
+          buffer << "/" << key << " "
+          emit_inline(value, buffer)
+          buffer << " "
+        end
+        buffer << ">>"
+      when Model::Literals::Procedure
+        buffer << "{ "
+        statement.body.each do |inner|
+          emit_inline(inner, buffer)
+          buffer << " "
+        end
+        buffer << "}"
       end
     end
 

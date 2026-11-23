@@ -89,4 +89,46 @@ RSpec.describe Postscript::Source::AstBuilder do
     expect(op).to be_a(Postscript::Model::UnknownOperator)
     expect(op.keyword).to eq("nonsense_operator")
   end
+
+  it "keeps a dictionary literal in the program body" do
+    program = parse("<< /PageSize [612 792] >> setpagedevice\n")
+
+    dict = program.body.first
+    expect(dict).to be_a(Postscript::Model::Literals::Dictionary)
+    expect(dict["PageSize"]).to eq(Postscript::Model::Literals::ArrayLiteral.new([
+                                                                                   Postscript::Model::Literals::Number.new(612),
+                                                                                   Postscript::Model::Literals::Number.new(792),
+                                                                                 ]))
+    expect(program.body.last.keyword).to eq("setpagedevice")
+  end
+
+  it "keeps procedures inside dictionary entries" do
+    program = parse("/d << /p { 1 2 add } >> def\n")
+
+    dict = program.body[1]
+    expect(dict).to be_a(Postscript::Model::Literals::Dictionary)
+    expect(dict["p"]).to be_a(Postscript::Model::Literals::Procedure)
+    expect(program.body.last).to be_a(Postscript::Model::Operators::Dictionary::Def)
+  end
+
+  it "keeps operators inside array literals" do
+    program = parse("[ 1 2 add ] pop\n")
+
+    array = program.body.first
+    expect(array).to be_a(Postscript::Model::Literals::ArrayLiteral)
+    expect(array.length).to eq(3)
+    expect(array[0]).to eq(Postscript::Model::Literals::Number.new(1))
+    expect(array[2]).to be_a(Postscript::Model::Operators::Arithmetic::Add)
+  end
+
+  it "keeps every literal form inside array literals" do
+    program = parse("[ (text) <DEAD> /name {} ] pop\n")
+
+    array = program.body.first
+    expect(array[0]).to eq(Postscript::Model::Literals::StringLiteral.new("text"))
+    expect(array[1]).to eq(Postscript::Model::Literals::HexLiteral.new("DEAD"))
+    expect(array[2]).to eq(Postscript::Model::Literals::Name.new("name",
+                                                                 literal: true))
+    expect(array[3]).to be_a(Postscript::Model::Literals::Procedure)
+  end
 end
