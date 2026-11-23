@@ -6,7 +6,7 @@ RSpec.describe Postscript::Validation::Grammar do
   {
     "{ unclosed" => [0, 1, "unbalanced procedure braces"],
     "(unterminated" => [0, 1, "unterminated string literal"],
-    "<hex" => [0, 1, "unterminated hex string literal"],
+    "<hex" => [1, 2, "invalid hex digit \"h\" in a hex string"],
     "[1 2" => [0, 1, "unbalanced array_close"],
     "<< /key 1" => [0, 1, "unbalanced dict_close"],
   }.each do |source, (offset, column, message)|
@@ -112,8 +112,11 @@ RSpec.describe Postscript::Validation::Grammar do
                                    engine: :native)).to eq([])
     end
 
-    it "keeps PARG rejections even when Lexer accepts the source" do
-      expect(described_class.check("<4g>", engine: :ruby)).to eq([])
+    it "reports invalid hex strings on both engines" do
+      ruby = described_class.check("<4g>", engine: :ruby)
+      expect(ruby.size).to eq(1)
+      expect(ruby.first.to_h).to include(kind: :grammar, severity: :error,
+                                         line: 1, column: 3)
       expect(described_class.check("<4g>", engine: :native).first.to_h)
         .to include(offset: 2, expected: a_collection_including("'>'"))
     end
