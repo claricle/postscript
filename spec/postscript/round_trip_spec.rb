@@ -118,4 +118,16 @@ RSpec.describe "postscript round-trip property" do
     serialized_eps = Postscript.serialize(program, eps: true)
     expect(serialized_eps).to include("%!PS-Adobe-3.0 EPSF-3.0")
   end
+
+  it "round-trips dictionaries and arrays holding operators" do
+    src = <<~PS
+      << /PageSize [612 792] >> pop
+      /d << /p { 1 2 add } >> def
+      [ 1 2 add ] pop
+    PS
+    program1 = Postscript.parse(src)
+    ps1 = Postscript.serialize(program1)
+    program2 = Postscript.parse(ps1)
+    expect(Postscript.serialize(program2)).to eq(ps1)
+  end
 end

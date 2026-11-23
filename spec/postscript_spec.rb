@@ -40,5 +40,16 @@ RSpec.describe Postscript do
         described_class.level_violations(header_program, level: 4)
       end.to raise_error(ArgumentError)
     end
+
+    it "reports operators nested in dictionaries, procedures and arrays" do
+      program = described_class.parse(
+        "%!PS\n%%LanguageLevel: 1\n<< /x { shfill } >> pop\n[ shfill ] pop\n",
+      )
+
+      expect(described_class.level_violations(program)).to contain_exactly(
+        Postscript::LevelViolation.new(keyword: "shfill", level: 3),
+        Postscript::LevelViolation.new(keyword: "shfill", level: 3),
+      )
+    end
   end
 end

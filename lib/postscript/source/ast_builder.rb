@@ -131,19 +131,23 @@ module Postscript
         end_index - start_index + 1
       end
 
+      # Consume a bracketed array literal. Every token between the
+      # brackets becomes an element: PostScript's "[ ... ]" is executed
+      # marking, so the array must keep operators (e.g. "[ 1 2 add ]")
+      # as well as literals, or the program loses information.
       def consume_array(after:, collected:)
         start_index = find_index(after)
         body_tokens, end_index = match_until(start_index + 1, :array_close,
                                              :array_open)
-        body_nodes = sub_build(body_tokens)
-        array = Model::Literals::ArrayLiteral.new(body_nodes.select do |n|
-          literal?(n)
-        end)
+        array = Model::Literals::ArrayLiteral.new(sub_build(body_tokens))
         @stack.push(array)
         append_statement(array, collected)
         end_index - start_index + 1
       end
 
+      # Consume an inline dictionary literal. The dictionary is recorded
+      # as a statement on the program body (as well as pushed onto the
+      # stack) so visitors and level checks see its entries.
       def consume_dict(after:, collected:)
         start_index = find_index(after)
         body_tokens, end_index = match_until(start_index + 1, :dict_close,
@@ -152,27 +156,17 @@ module Postscript
         pending_key = nil
         sub_nodes = sub_build(body_tokens)
         sub_nodes.each do |node|
-          if node.is_a?(Model::Literals::Name) && node.literal?
-            pending_key = node.value
-          elsif pending_key
+          if pending_key
             entries[pending_key] = node
             pending_key = nil
+          elsif node.is_a?(Model::Literals::Name) && node.literal?
+            pending_key = node.value
           end
         end
         dict = Model::Literals::Dictionary.new(entries)
         @stack.push(dict)
-        collected << dict
+        append_statement(dict, collected)
         end_index - start_index + 1
-      end
-
-      def literal?(node)
-        node.is_a?(Model::Literals::Number) ||
-          node.is_a?(Model::Literals::Name) ||
-          node.is_a?(Model::Literals::StringLiteral) ||
-          node.is_a?(Model::Literals::HexLiteral) ||
-          node.is_a?(Model::Literals::ArrayLiteral) ||
-          node.is_a?(Model::Literals::Procedure) ||
-          node.is_a?(Model::Literals::Dictionary)
       end
 
       def sub_build(sub_tokens)
