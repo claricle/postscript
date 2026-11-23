@@ -14,6 +14,10 @@ jobs:
         with:
           ruby-version: '3.4'
       # parsanol is not a dependency of this gem; only this check needs it.
-      - run: gem install parsanol --no-document --version '>= 1.3.96'
+      # Pinned to the compiler that built the vendored artifact (its envelope
+      # records compiler_version) — a floating install breaks this check on
+      # every parsanol patch release, since the compiled payload tracks the
+      # compiler. etassia-grammar's CI uses the same contract.
+      - run: gem install parsanol --no-document -v "$(ruby -rjson -e 'print JSON.parse(File.read("grammars/postscript.json"))["compiler_version"]')"
       - run: ruby script/check_grammar.rb
       - run: ruby script/check_guide_operators.rb
